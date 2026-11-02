@@ -545,7 +545,14 @@ let tt;function toast(m){const t=document.getElementById('toast');t.textContent=
    sign-in loses nothing: the next load sends it again. */
 const SAVE_DELAY=600,PENDING=LS+'.unsaved';
 /* snapshot: ask the server to keep a copy of what it has before this save replaces it (restore, overwrite) */
-const sync={version:0,dirty:false,inflight:null,timer:0,wait:0,conflict:null,savedAt:0,snapshot:false};
+const sync={version:0,dirty:false,inflight:null,timer:0,wait:0,conflict:null,savedAt:0,snapshot:false,sent:[]};
+/* sent: saves that went out but never got an answer (the tab closed, or the network dropped mid-request).
+   Each is {base, hash}. If the server's data is exactly one of them, that save landed, so a newer server
+   version is our own write and not a conflict. */
+function hashStr(s){let a=0xdeadbeef,b=0x41c6ce57;for(let i=0;i<s.length;i++){const c=s.charCodeAt(i);a=Math.imul(a^c,2654435761);b=Math.imul(b^c,1597334677)}
+  a=Math.imul(a^(a>>>16),2246822507)^Math.imul(b^(b>>>13),3266489909);b=Math.imul(b^(b>>>16),2246822507)^Math.imul(a^(a>>>13),3266489909);
+  return (4294967296*(2097151&b)+(a>>>0)).toString(36)}
+function landed(version,raw,sent){if(!sent||!sent.length)return false;const h=hashStr(raw);return sent.some(x=>version===x.base+1&&x.hash===h)}
 async function api(method,path,body){
   const r=await fetch(path,{method,body,credentials:'same-origin',cache:'no-store',
     headers:body?{'Content-Type':'application/json'}:{},
@@ -553,7 +560,7 @@ async function api(method,path,body){
   if(r.status===401){location.href='/login';throw new Error('signed out')}
   return r;
 }
-function keepLocal(){try{localStorage.setItem(PENDING,JSON.stringify({base:sync.version,state}))}catch(e){}}
+function keepLocal(){try{localStorage.setItem(PENDING,JSON.stringify({base:sync.version,state,sent:sync.sent}))}catch(e){}}
 function dropLocal(){try{localStorage.removeItem(PENDING)}catch(e){}}
 function readLocal(){try{return JSON.parse(localStorage.getItem(PENDING))}catch(e){return null}}
 function save(){
@@ -566,14 +573,21 @@ function flush(force){
   clearTimeout(sync.timer);
   if(sync.inflight||!sync.dirty||(sync.conflict&&!force))return sync.inflight||Promise.resolve();
   sync.dirty=false;setStatus('saving');
-  const snap=sync.snapshot;
-  const body=JSON.stringify({version:force?null:sync.version,data:state,snapshot:snap});
+  const snap=sync.snapshot,data=JSON.stringify(state);
+  /* a forced save has no base version, so it can't be matched later; it's only used after a conflict anyway */
+  const attempt=force?null:{base:sync.version,hash:hashStr(data)};
+  if(attempt){sync.sent.push(attempt);if(sync.sent.length>3)sync.sent.shift();keepLocal()}
+  const body=`{"version":${force?'null':sync.version},"snapshot":${!!snap},"data":${data}}`;
   sync.inflight=(async()=>{
     try{
       const r=await api('PUT','/api/state',body);
-      if(r.status===409){sync.dirty=true;showConflict('This data was saved from another tab or device after you opened it.',null);return}
+      sync.sent=sync.sent.filter(x=>x!==attempt); /* the server answered, so this attempt's outcome is known */
+      if(r.status===409){
+        sync.dirty=true;
+        if(await rebaseIfLanded())return; /* the 409 came from an earlier save of ours that did land */
+        showConflict('This data was saved from another tab or device after you opened it.',null);return}
       if(!r.ok)throw new Error('HTTP '+r.status);
-      const d=await r.json();sync.version=d.version;sync.savedAt=d.savedAt*1000;sync.wait=0;if(snap)sync.snapshot=false;
+      const d=await r.json();sync.version=d.version;sync.savedAt=d.savedAt*1000;sync.wait=0;sync.sent=[];if(snap)sync.snapshot=false;
       if(sync.dirty)keepLocal();else dropLocal();
     }catch(e){sync.dirty=true;sync.wait=Math.min(sync.wait?sync.wait*2:2000,30000)}
     finally{
@@ -584,6 +598,13 @@ function flush(force){
     }
   })();
   return sync.inflight;
+}
+async function rebaseIfLanded(){
+  if(!sync.sent.length)return false;
+  try{const r=await api('GET','/api/state');if(!r.ok)return false;const d=await r.json();
+    if(!landed(d.version,JSON.stringify(d.data),sync.sent))return false;
+    sync.version=d.version;sync.savedAt=(d.savedAt||0)*1000;sync.sent=[];sync.wait=0;return true}
+  catch(e){return false}
 }
 async function reload(){
   const r=await api('GET','/api/state');if(!r.ok)throw new Error('HTTP '+r.status);
@@ -625,10 +646,13 @@ async function boot(){
     app.innerHTML=`<div class="boot"><b>Can’t reach the Comm Desk server.</b><span>Check that the server is running and the SSH tunnel is open.</span><button class="btn" data-act="boot-retry">Try again</button></div>`;
     return;
   }
+  const raw=JSON.stringify(d.data); /* before normState, which changes the data in place */
   sync.version=d.version;sync.savedAt=(d.savedAt||0)*1000;state=normState(d.data||sample());
   const p=readLocal();
   if(p&&p.state){
-    if(p.base===d.version){state=normState(p.state);sync.dirty=true;flush();toast('Restored changes that weren’t saved')}
+    /* identical to the server: the last save landed but the tab closed before it heard back */
+    if(JSON.stringify(p.state)===raw)dropLocal();
+    else if(p.base===d.version||landed(d.version,raw,p.sent)){state=normState(p.state);sync.dirty=true;flush();toast('Restored changes that weren’t saved')}
     else showConflict('Some changes from your last visit weren’t saved, and the server has newer data since.',p.state);
   }
   if(!sync.inflight&&!sync.conflict)setStatus('saved');

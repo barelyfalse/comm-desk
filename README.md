@@ -80,6 +80,7 @@ Use `localhost`, not the VM's IP address. The copy buttons need a secure context
 - **Coming back to a tab.** When a tab becomes visible again, it checks the server's version. If the data is newer and the tab has no unsaved edits, it reloads. Switching between two tabs therefore stays in sync.
 - **Leaving a tab.** Pending changes are sent right away when you switch away or close the tab. If something is still unsaved, the browser asks before closing.
 - **Server unreachable** (tunnel down or server stopped). The indicator turns red (**Not saved · retrying**) and retries after 2, 4, 8 and so on, up to 30 seconds. Click it to retry immediately. Until a save is confirmed, the latest state is also kept in the browser's `localStorage`. On the next load it is sent again automatically, or the conflict banner appears if the server changed in the meantime.
+- **Saves whose reply was lost.** If a save reaches the server but the tab closes or the network drops before the reply arrives, the page keeps a fingerprint of what it sent. On the next load or retry, if the server's data matches that fingerprint, the save is recognized as its own. Any later edits are applied on top without a conflict banner. The banner only appears when another tab or device really saved in between.
 - **Expired sign-in.** A save that comes back 401 sends you to the sign-in page. Your unsaved changes are restored after you sign in.
 
 ## Snapshots, restore and erase
