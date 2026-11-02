@@ -82,13 +82,22 @@ Use `localhost`, not the VM's IP address. The copy buttons need a secure context
 - **Server unreachable** (tunnel down or server stopped). The indicator turns red (**Not saved · retrying**) and retries after 2, 4, 8 and so on, up to 30 seconds. Click it to retry immediately. Until a save is confirmed, the latest state is also kept in the browser's `localStorage`. On the next load it is sent again automatically, or the conflict banner appears if the server changed in the meantime.
 - **Expired sign-in.** A save that comes back 401 sends you to the sign-in page. Your unsaved changes are restored after you sign in.
 
-## Snapshots and restore
+## Snapshots, restore and erase
 
-On top of the current state, the server keeps one snapshot per hour of activity for 30 days.
+On top of the current state, the server keeps snapshots for 30 days:
+
+- **hourly**: one per hour of activity.
+- **before replace**: taken before a web **Restore** from a pasted backup, or an **Overwrite with mine**.
+- **before restore** and **before erase**: taken by the commands below.
+
+Every operation that replaces all the data can therefore be undone.
 
 ```bash
-.venv/bin/python server/main.py snapshots        # list them
-.venv/bin/python server/main.py restore 42       # make snapshot 42 the current data
+uv run server/main.py snapshots        # list them, with case counts and why each was taken
+uv run server/main.py restore 42       # make snapshot 42 the current data
+uv run server/main.py erase            # delete all data; asks you to type "erase", prints the restore id
 ```
+
+Erasing all data is only available on the server, not in the web page.
 
 For a full backup, copy `data/commdesk.db`, or run `sqlite3 data/commdesk.db ".backup backup.db"` while the server is running.

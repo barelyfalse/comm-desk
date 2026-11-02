@@ -6,8 +6,9 @@ each other. Sign-in uses one static password (stored as a scrypt hash) and a sig
 
     python server/main.py set-password      # once, before first run
     python server/main.py                   # serve on 127.0.0.1:8000
-    python server/main.py snapshots         # list hourly snapshots
+    python server/main.py snapshots         # list snapshots
     python server/main.py restore <id>      # roll the data back to a snapshot
+    python server/main.py erase             # delete all data (a snapshot is kept first)
 """
 
 import base64
@@ -121,8 +122,10 @@ CREATE TABLE IF NOT EXISTS snapshots(
   id INTEGER PRIMARY KEY,
   version INTEGER NOT NULL,
   data TEXT NOT NULL,
-  saved_at REAL NOT NULL);
+  saved_at REAL NOT NULL,
+  note TEXT NOT NULL DEFAULT 'hourly');
 """
+EMPTY_STATE = json.dumps({"cases": [], "commands": [], "archive": []})
 
 
 @contextmanager
@@ -148,6 +151,8 @@ def init_db() -> None:
     DATA_DIR.mkdir(parents=True, exist_ok=True)
     with db() as con:
         con.executescript(SCHEMA)
+        if "note" not in {row[1] for row in con.execute("PRAGMA table_info(snapshots)")}:
+            con.execute("ALTER TABLE snapshots ADD COLUMN note TEXT NOT NULL DEFAULT 'hourly'")
     os.chmod(DB_PATH, 0o600)
 
 
@@ -156,13 +161,23 @@ def current_state(con: sqlite3.Connection) -> tuple[int, str | None, float]:
     return row if row else (0, None, 0.0)
 
 
+def snapshot_current(con: sqlite3.Connection, note: str) -> int | None:
+    """Keep a copy of the saved data before something replaces all of it."""
+    version, data, _ = current_state(con)
+    if data is None:
+        return None
+    cur = con.execute("INSERT INTO snapshots(version, data, saved_at, note) VALUES (?, ?, ?, ?)",
+                      (version, data, time.time(), note))
+    return cur.lastrowid
+
+
 def write_state(con: sqlite3.Connection, version: int, data: str) -> float:
     now = time.time()
     con.execute(
         "INSERT INTO state(id, version, data, saved_at) VALUES (1, ?, ?, ?) "
         "ON CONFLICT(id) DO UPDATE SET version = excluded.version, data = excluded.data, saved_at = excluded.saved_at",
         (version, data, now))
-    last = con.execute("SELECT MAX(saved_at) FROM snapshots").fetchone()[0]
+    last = con.execute("SELECT MAX(saved_at) FROM snapshots WHERE note = 'hourly'").fetchone()[0]
     if last is None or now - last >= SNAPSHOT_EVERY:
         con.execute("INSERT INTO snapshots(version, data, saved_at) VALUES (?, ?, ?)", (version, data, now))
         con.execute("DELETE FROM snapshots WHERE saved_at < ?", (now - SNAPSHOT_KEEP,))
@@ -174,6 +189,7 @@ def write_state(con: sqlite3.Connection, version: int, data: str) -> float:
 class StateIn(BaseModel):
     version: int | None  # the version this state was based on; null overwrites whatever is saved
     data: dict[str, Any]
+    snapshot: bool = False  # keep a copy of the current data first (sent by restore and overwrite)
 
 
 class LoginIn(BaseModel):
@@ -254,6 +270,8 @@ def create_app() -> FastAPI:
             version, _, _ = current_state(con)
             if body.version is not None and body.version != version:
                 return JSONResponse({"version": version}, status_code=409, headers=NO_STORE)
+            if body.snapshot:
+                snapshot_current(con, "before replace")
             saved_at = write_state(con, version + 1, text)
         return JSONResponse({"version": version + 1, "savedAt": saved_at}, headers=NO_STORE)
 
@@ -275,12 +293,12 @@ def cmd_set_password() -> None:
 def cmd_snapshots() -> None:
     init_db()
     with db() as con:
-        rows = con.execute("SELECT id, version, saved_at, data FROM snapshots ORDER BY id DESC").fetchall()
+        rows = con.execute("SELECT id, version, saved_at, data, note FROM snapshots ORDER BY id DESC").fetchall()
     if not rows:
         print("No snapshots yet.")
-    for sid, version, saved_at, data in rows:
+    for sid, version, saved_at, data, note in rows:
         cases = len(json.loads(data).get("cases", []))
-        print(f"{sid:>5}  {time.strftime('%Y-%m-%d %H:%M', time.localtime(saved_at))}  v{version}  {cases} cases")
+        print(f"{sid:>5}  {time.strftime('%Y-%m-%d %H:%M', time.localtime(saved_at))}  v{version:<5} {cases:>3} cases  {note}")
 
 
 def cmd_restore(sid: str) -> None:
@@ -289,9 +307,23 @@ def cmd_restore(sid: str) -> None:
         row = con.execute("SELECT data FROM snapshots WHERE id = ?", (int(sid),)).fetchone()
         if not row:
             sys.exit(f"No snapshot {sid}.")
+        kept = snapshot_current(con, "before restore")
         version, _, _ = current_state(con)
         write_state(con, version + 1, row[0])
     print(f"Restored snapshot {sid} as version {version + 1}. Open tabs will load it when you return to them.")
+    if kept:
+        print(f"The data it replaced is snapshot {kept}.")
+
+
+def cmd_erase() -> None:
+    init_db()
+    if input('This deletes all cases, commands, links and variables. Type "erase" to continue: ').strip() != "erase":
+        sys.exit("Nothing changed.")
+    with db(write=True) as con:
+        kept = snapshot_current(con, "before erase")
+        version, _, _ = current_state(con)
+        write_state(con, version + 1, EMPTY_STATE)
+    print("All data erased." + (f" To undo: python server/main.py restore {kept}" if kept else ""))
 
 
 def main() -> None:
@@ -302,6 +334,8 @@ def main() -> None:
         cmd_snapshots()
     elif args[:1] == ["restore"] and len(args) == 2:
         cmd_restore(args[1])
+    elif args[:1] == ["erase"]:
+        cmd_erase()
     elif not args:
         import uvicorn
         uvicorn.run(create_app(), host=HOST, port=PORT, proxy_headers=False)

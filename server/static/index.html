@@ -405,7 +405,7 @@ select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);backg
 
 /* data drawer */
 .drawer{background:var(--surface);border-bottom:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
-.drawer-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px}
+.drawer-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
 .drawer-in > div{display:flex;flex-direction:column;gap:8px;min-width:0}
 .drawer textarea{font-family:var(--font-mono);font-size:12px;height:70px}
 @media (max-width:760px){.drawer-in{grid-template-columns:minmax(0,1fr)}}
@@ -456,11 +456,7 @@ select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);backg
       <h2>Restore</h2>
       <textarea id="import-box" placeholder="Paste JSON from a backup" spellcheck="false"></textarea>
       <div class="inline-add" id="import-actions"><button class="btn sm" data-act="import">Replace data with this</button></div>
-    </div>
-    <div>
-      <h2>Reset</h2>
-      <p class="hint">Erase all cases and commands from the server.</p>
-      <div id="erase-actions"><button class="btn sm danger" data-act="erase">Erase everything</button></div>
+      <p class="hint">The server snapshots the current data first, so this can be undone with <code>main.py restore</code>.</p>
     </div>
     <div>
       <h2>Session</h2>
@@ -521,7 +517,8 @@ let tt;function toast(m){const t=document.getElementById('toast');t.textContent=
    Until the server confirms, the state is also kept in localStorage, so a dropped tunnel or an expired
    sign-in loses nothing: the next load sends it again. */
 const SAVE_DELAY=600,PENDING=LS+'.unsaved';
-const sync={version:0,dirty:false,inflight:null,timer:0,wait:0,conflict:null,savedAt:0};
+/* snapshot: ask the server to keep a copy of what it has before this save replaces it (restore, overwrite) */
+const sync={version:0,dirty:false,inflight:null,timer:0,wait:0,conflict:null,savedAt:0,snapshot:false};
 async function api(method,path,body){
   const r=await fetch(path,{method,body,credentials:'same-origin',cache:'no-store',
     headers:body?{'Content-Type':'application/json'}:{},
@@ -542,13 +539,14 @@ function flush(force){
   clearTimeout(sync.timer);
   if(sync.inflight||!sync.dirty||(sync.conflict&&!force))return sync.inflight||Promise.resolve();
   sync.dirty=false;setStatus('saving');
-  const body=JSON.stringify({version:force?null:sync.version,data:state});
+  const snap=sync.snapshot;
+  const body=JSON.stringify({version:force?null:sync.version,data:state,snapshot:snap});
   sync.inflight=(async()=>{
     try{
       const r=await api('PUT','/api/state',body);
       if(r.status===409){sync.dirty=true;showConflict('This data was saved from another tab or device after you opened it.',null);return}
       if(!r.ok)throw new Error('HTTP '+r.status);
-      const d=await r.json();sync.version=d.version;sync.savedAt=d.savedAt*1000;sync.wait=0;
+      const d=await r.json();sync.version=d.version;sync.savedAt=d.savedAt*1000;sync.wait=0;if(snap)sync.snapshot=false;
       if(sync.dirty)keepLocal();else dropLocal();
     }catch(e){sync.dirty=true;sync.wait=Math.min(sync.wait?sync.wait*2:2000,30000)}
     finally{
@@ -578,7 +576,7 @@ function showConflict(msg,mine){
 }
 function clearConflict(){sync.conflict=null;document.getElementById('sync-banner').hidden=true}
 async function useTheirs(){clearConflict();sync.dirty=false;dropLocal();try{await reload();toast('Loaded the saved data')}catch(e){setStatus('error')}}
-function useMine(){const m=sync.conflict.mine;clearConflict();if(m){state=normState(m);route()}sync.dirty=true;keepLocal();flush(true)}
+function useMine(){const m=sync.conflict.mine;clearConflict();if(m){state=normState(m);route()}sync.dirty=true;sync.snapshot=true;keepLocal();flush(true)}
 const SYNC_ICON={
   saved:'<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>',
   saving:'<svg class="spin" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5.5" fill="none" stroke="currentColor" stroke-opacity=".25" stroke-width="2"/><path d="M13.5 8A5.5 5.5 0 0 0 8 2.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
@@ -1309,12 +1307,9 @@ document.addEventListener('click',e=>{
     case 'import':document.getElementById('import-actions').innerHTML=`<button class="btn sm" data-act="import-no">Cancel</button><button class="btn sm danger solid" data-act="import-yes">Replace all data</button>`;break;
     case 'import-no':document.getElementById('import-actions').innerHTML=`<button class="btn sm" data-act="import">Replace data with this</button>`;break;
     case 'import-yes':{
-      try{const d=JSON.parse(document.getElementById('import-box').value);if(!Array.isArray(d.cases)||!Array.isArray(d.commands))throw 0;state=normState(d);save();document.getElementById('import-box').value='';toast('Data restored');route()}
+      try{const d=JSON.parse(document.getElementById('import-box').value);if(!Array.isArray(d.cases)||!Array.isArray(d.commands))throw 0;state=normState(d);sync.snapshot=true;save();document.getElementById('import-box').value='';toast('Data restored');route()}
       catch(err){toast('That text is not a Comm Desk backup')}
       document.getElementById('import-actions').innerHTML=`<button class="btn sm" data-act="import">Replace data with this</button>`;break}
-    case 'erase':document.getElementById('erase-actions').innerHTML=`<span class="inline-add"><button class="btn sm" data-act="erase-no">Cancel</button><button class="btn sm danger solid" data-act="erase-yes">Erase everything</button></span>`;break;
-    case 'erase-no':document.getElementById('erase-actions').innerHTML=`<button class="btn sm danger" data-act="erase">Erase everything</button>`;break;
-    case 'erase-yes':state=normState({cases:[],commands:[],archive:[]});save();document.getElementById('erase-actions').innerHTML=`<button class="btn sm danger" data-act="erase">Erase everything</button>`;location.hash='home';route();toast('All data erased');break;
     case 'sync-retry':if(sync.dirty&&!sync.inflight&&!sync.conflict)flush();break;
     case 'sync-theirs':useTheirs();break;
     case 'sync-mine':useMine();break;

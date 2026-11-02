@@ -49,8 +49,8 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 ## Data
 
 - **Back up**: copy all data as JSON.
-- **Restore**: paste JSON to replace all data.
-- **Reset**: erase everything.
+- **Restore**: paste JSON to replace all data. In the server version, the replaced data is kept as a snapshot.
+- **Erase everything** is not in the web page in the server version. It's a server command (`main.py erase`).
 - On first load, sample cases and commands are created. **Remove examples** clears them.
 
 ## UI
