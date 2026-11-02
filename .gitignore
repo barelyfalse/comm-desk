@@ -1,0 +1,5 @@
+.venv/
+__pycache__/
+# database, password hash and session key
+data/
+Comm Desk.html

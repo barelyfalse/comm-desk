@@ -1,0 +1,17 @@
+# systemd user service. Install with:
+#   mkdir -p ~/.config/systemd/user && cp deploy/commdesk.service ~/.config/systemd/user/
+#   systemctl --user daemon-reload && systemctl --user enable --now commdesk
+# Assumes the project lives in ~/comm-desk; change the two paths below if not.
+# Run `uv sync` first: it creates the .venv this uses, so systemd doesn't need uv on its PATH.
+[Unit]
+Description=Comm Desk
+After=network.target
+
+[Service]
+WorkingDirectory=%h/comm-desk
+ExecStart=%h/comm-desk/.venv/bin/python server/main.py
+Restart=on-failure
+RestartSec=3
+
+[Install]
+WantedBy=default.target
