@@ -17,6 +17,7 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 - **Case panel**: number, name, comm phase (`Waiting`, `Update`, `Follow Up`, `Closing soon`, `Closing`, or a custom phase), last comm, next comm, optional auto-close date, and a 1–5 complexity rating.
 - **Notes**: free text.
 - **Log**: timestamped entries you add yourself, plus automatic entries for events such as case created, follow-up due or sent, auto-close set or cleared, closing email sent, and closed or reopened.
+- **TODO**: a checklist for this case. Click an item's box to change its state: `[ ]` to do → `[-]` partly done (light blue) → `[d]` done (gray, crossed out) → `[x]` canceled (dark red, crossed out). Shift-click goes back one state. **Clear done & canceled** removes the finished items.
 - **Tags**, with suggestions taken from tags already used on other cases.
 - **Links**: the default links plus links for this case only. URLs can contain placeholders. A link that is missing a value shows which variable it needs.
 - **Variables**: the values for this case. Any `{placeholder}` used by the case's commands or links appears here automatically and is flagged *needed* until it has a value.
@@ -56,5 +57,6 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 ## UI
 
 - Light and dark themes that follow the system setting.
+- **Hints** toggle (the **?** button in the top bar) shows or hides the explanatory hints. The choice is saved in this browser, so each device keeps its own.
 - Responsive layout. On phones the ledger becomes cards and a bottom tab bar replaces the top navigation.
 - Hash-based routing: `#home`, `#case-<id>`, `#commands`, `#command-<id>`, `#links`, `#variables`, `#history`.

@@ -19,7 +19,7 @@
   --fg:#151a24; --muted:#5b6476; --faint:#8a92a3;
   --accent:#2b4fd8; --accent-fg:#ffffff; --accent-soft:#e7ecfd;
   --over:#c33a2a; --over-soft:#fbe8e5; --today:#c0660d; --today-soft:#fdeedd; --tmrw:#8f7400; --tmrw-soft:#faf3d2; --later:#5b6476;
-  --code-bg:#f2f4f9; --mark:#dfe7ff; --mark-fg:#1c3aa8;
+  --code-bg:#f2f4f9; --mark:#dfe7ff; --mark-fg:#1c3aa8; --td-part:#1f7ab8; --td-cancel:#9a2b20;
   --font-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
   --r:8px;
@@ -29,13 +29,13 @@
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
   --over:#ff7c6c; --over-soft:#3a1c19; --today:#f1a352; --today-soft:#382614; --tmrw:#e4c64a; --tmrw-soft:#322d10; --later:#9aa2b3;
-  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; color-scheme:dark}}
+  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#b4574b; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1218; --surface:#151a23; --surface-2:#1a2030; --line:#252c3a; --line-strong:#343d4f;
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
   --over:#ff7c6c; --over-soft:#3a1c19; --today:#f1a352; --today-soft:#382614; --tmrw:#e4c64a; --tmrw-soft:#322d10; --later:#9aa2b3;
-  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; color-scheme:dark}
+  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#b4574b; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-ui);font-size:14px;line-height:1.45}
@@ -182,6 +182,10 @@ select.cell{font-weight:500}
 .form .wide{grid-column:1/-1}
 @media (max-width:480px){.form{grid-template-columns:minmax(0,1fr)}}
 .hint{font-size:12.5px;color:var(--muted);margin:0;max-width:70ch}
+:root[data-hints="off"] .hint{display:none}
+.hints-btn{flex:none;width:26px;height:26px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--faint);font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center}
+.hints-btn:hover{color:var(--fg);border-color:var(--muted)}
+.hints-btn[aria-pressed="true"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:var(--accent-soft)}
 .hint code,.code-inline{font-family:var(--font-mono);font-size:12px;background:var(--code-bg);padding:1px 5px;border-radius:4px}
 
 /* log */
@@ -302,6 +306,24 @@ select.cell{font-weight:500}
 .var-add{display:flex;gap:8px}
 .lnk{border:0;background:none;padding:0;font:inherit;font-family:var(--font-mono);color:var(--over);text-decoration:underline;cursor:pointer}
 @media (max-width:760px){.vbody{grid-template-columns:minmax(0,1fr) 40px 40px}.ib-slot{width:40px;height:40px}}
+
+/* todo */
+.todos{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+.td{display:flex;align-items:center;gap:6px;padding:2px 0;border-top:1px solid var(--line)}
+.td:first-child{border-top:0}
+.td-box{border:0;background:none;cursor:pointer;font-weight:600;font-size:13.5px;padding:6px;white-space:pre;color:var(--fg);border-radius:4px;flex:none}
+.td-box:hover{background:var(--surface-2)}
+input[type=text].td-text{border-color:transparent;background:transparent;padding-inline:4px}
+input[type=text].td-text:focus{border-color:var(--accent);background:var(--surface)}
+.td[data-s="-"] .td-box,.td[data-s="-"] .td-text{color:var(--td-part)}
+.td[data-s="d"] .td-box,.td[data-s="d"] .td-text{color:var(--faint)}
+.td[data-s="x"] .td-box,.td[data-s="x"] .td-text{color:var(--td-cancel)}
+.td[data-s="d"] .td-text,.td[data-s="x"] .td-text{text-decoration:line-through}
+.td .x{visibility:hidden}.td:hover .x,.td:focus-within .x{visibility:visible}
+.btn:disabled{opacity:.5;cursor:default}
+.td-n{text-transform:none;letter-spacing:0;font-weight:500;color:var(--faint);margin-left:4px}
+.todos .muted-empty{padding:4px 0}
+@media (max-width:760px){.td .x{visibility:visible}}
 
 /* phone */
 .tabs{display:none}
@@ -440,6 +462,7 @@ select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);backg
       <a href="#variables" data-nav="vars">Variables</a>
     </nav>
     <button type="button" class="sync" id="sync" data-act="sync-retry" data-s="loading" aria-live="polite"></button>
+    <button type="button" class="hints-btn" id="hints-btn" data-act="toggle-hints" aria-pressed="true" title="Hide hints" aria-label="Hints">?</button>
     <button class="btn ghost sm" data-act="toggle-data" id="data-btn">Data</button>
   </div>
 </header>
@@ -478,6 +501,10 @@ select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);backg
 <script>
 (function(){
 const LS='casedesk.v1';
+/* hints: a per-device display preference, so it lives in this browser rather than in the case data */
+const HINTS='commdesk.hints';
+function applyHints(on){document.documentElement.dataset.hints=on?'on':'off';const b=document.getElementById('hints-btn');b.setAttribute('aria-pressed',on);b.title=on?'Hide hints':'Show hints'}
+try{applyHints(localStorage.getItem(HINTS)!=='off')}catch(e){applyHints(true)}
 const PHASES=['Waiting','Update','Follow Up','Closing soon','Closing'];
 const PHASE_MAP={'Future update':'Update','INCRUP':'Update','Waiting response':'Waiting','48-h follow up':'Follow Up','Closing tomorrow':'Closing soon','Waiting closing':'Waiting'};
 const PH=/\{([A-Za-z_][\w.\-]*)\}/g;
@@ -609,7 +636,7 @@ async function boot(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkRemote();else flush()});
 window.addEventListener('beforeunload',e=>{if(sync.dirty||sync.inflight){flush();e.preventDefault();e.returnValue=''}});
-function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.log||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
+function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
 function migTpl(t){return (t||'').replace(/\{case\.(id|number)\}/g,'{caseId}').replace(/\{case\.name\}/g,'{caseName}').replace(/\{case\.([A-Za-z_][\w.\-]*)\}/g,'{$1}')}
 function normState(s){s.archive||=[];s.cases||=[];s.commands||=[];s.globals||=[];s.commands.forEach(k=>k.template=migTpl(k.template));s.cases.forEach(norm);s.defaults||={};s.defaults.vars||=[];s.defaults.links||=[];s.defaults.links.forEach(l=>{l.id||=('l'+uid());l.url=migTpl(l.url)});s.cases.forEach(c=>c.links.forEach(l=>l.url=migTpl(l.url)));s.cases.filter(c=>c.closedAt&&!s.archive.some(a=>a.id===c.id)).forEach(c=>s.archive.push({id:c.id,number:c.number,name:c.name,closedAt:c.closedAt,sample:c.sample||undefined}));return s}
 
@@ -872,6 +899,12 @@ function renderCase(id){
       </div>
       <div class="col">
         <section class="panel">
+          <div class="p-head"><h2>TODO <span class="td-n" id="td-count"></span></h2><button class="btn ghost sm" data-act="td-clear" id="td-clear"></button></div>
+          <div class="inline-add"><input type="text" id="td-new" placeholder="Add a to-do and press Enter" autocomplete="off" aria-label="New to-do"><button class="btn sm" data-act="td-add">Add</button></div>
+          <ul class="todos" id="todos"></ul>
+          <p class="hint">Click a box to change its state: <code>[ ]</code> to do → <code>[-]</code> partly done → <code>[d]</code> done → <code>[x]</code> canceled. Shift-click goes back.</p>
+        </section>
+        <section class="panel">
           <h2>Log</h2>
           <div class="log-in"><input type="text" id="log-in" placeholder="Add a line and press Enter"><button class="btn sm" data-act="add-log">Add</button></div>
           <ul class="log" id="log"></ul>
@@ -892,7 +925,7 @@ function renderCase(id){
       </div>
     </div>
   </div>`;
-  ensureVars(c);updateHead();renderLog();renderTags();renderLinks();renderVars();renderCmdSection();
+  ensureVars(c);updateHead();renderTodos();renderLog();renderTags();renderLinks();renderVars();renderCmdSection();
 }
 function updateHead(){
   const d=due(cur);
@@ -1177,6 +1210,22 @@ function renderVariables(){
   renderBank();
 }
 
+/* ---------- todo ---------- */
+const TD_NEXT={' ':'-','-':'d','d':'x','x':' '},TD_PREV={' ':'x','-':' ','d':'-','x':'d'};
+const TD_NAME={' ':'To do','-':'Partly done','d':'Done','x':'Canceled'};
+const tdList=()=>cur.todos;
+function renderTodos(focus){
+  const l=tdList(),open=l.filter(t=>t.s===' '||t.s==='-').length,gone=l.length-open;
+  document.getElementById('td-count').textContent=l.length?`${open} open`:'';
+  const b=document.getElementById('td-clear');b.disabled=!gone;b.textContent=`Clear done & canceled${gone?' · '+gone:''}`;
+  document.getElementById('todos').innerHTML=l.length?l.map((t,i)=>`<li class="td" data-s="${t.s}">
+    <button class="td-box mono" data-act="td-cycle" data-i="${i}" title="${TD_NAME[t.s]}. Click to change" aria-label="${TD_NAME[t.s]}. Change state">[${t.s}]</button>
+    <input type="text" class="td-text" data-td="${i}" value="${h(t.text)}" aria-label="To-do" autocomplete="off">
+    <button class="x" data-act="td-del" data-i="${i}" aria-label="Delete to-do">×</button></li>`).join(''):`<li class="muted-empty">No to-dos for this case.</li>`;
+  if(focus!=null)document.querySelector(`.td-box[data-i="${focus}"]`)?.focus();
+}
+function addTodo(){const i=document.getElementById('td-new');const v=i.value.trim();if(!v)return;tdList().push({id:'t'+uid(),text:v,s:' '});i.value='';save();renderTodos();i.focus()}
+
 /* ---------- routing ---------- */
 function route(){
   const r=location.hash.slice(1);
@@ -1215,6 +1264,7 @@ app.addEventListener('input',e=>{
   const t=e.target;
   if(t.id==='q'){ui.q=t.value;renderRows();return}
   if(t.id==='hq'){ui.hq=t.value;renderHistRows();return}
+  if(t.dataset.td!==undefined&&cur){const x=tdList()[+t.dataset.td];if(x){x.text=t.value;save()}return}
   if(!cur){ // commands page
     const d=state.defaults;
     if(t.dataset.gv!==undefined){const x=gVar(t.dataset.gv);if(x){x.value=t.value;save()}return}
@@ -1245,6 +1295,7 @@ app.addEventListener('keydown',e=>{
   if(e.key!=='Enter')return;
   const id=e.target.id;
   if(id==='log-in'){e.preventDefault();addLog()}
+  else if(id==='td-new'){e.preventDefault();addTodo()}
   else if(id==='tag-in'){e.preventDefault();addTag()}
   else if(id==='link-url'||id==='link-label'){e.preventDefault();addLink()}
   else if(id==='var-new'){e.preventDefault();addVar()}
@@ -1257,6 +1308,11 @@ document.addEventListener('click',e=>{
   if(!b){const row=e.target.closest('.lrow[data-href]');if(row&&!e.target.closest('input,select,button,a,label'))location.hash=row.dataset.href;return}
   const a=b.dataset.act,i=+b.dataset.i;
   switch(a){
+    case 'toggle-hints':{const on=document.documentElement.dataset.hints==='off';applyHints(on);try{localStorage.setItem(HINTS,on?'on':'off')}catch(e){}toast(on?'Hints shown':'Hints hidden');break}
+    case 'td-add':addTodo();break;
+    case 'td-cycle':{const x=tdList()[i];if(!x)break;x.s=(e.shiftKey?TD_PREV:TD_NEXT)[x.s]||' ';save();renderTodos(i);break}
+    case 'td-del':tdList().splice(i,1);save();renderTodos();break;
+    case 'td-clear':{const l=tdList(),n=l.length;l.splice(0,n,...l.filter(t=>t.s===' '||t.s==='-'));save();renderTodos();toast(`Cleared ${n-l.length}`);break}
     case 'new-case':{const c=norm({id:'c'+uid(),number:'',name:'',phase:'',commDate:'',lastComm:iso(new Date()),notes:''});autoLog(c,'Case created');state.cases.push(c);save();location.hash='case-'+c.id;setTimeout(()=>document.getElementById('f-number')?.focus(),0);break}
     case 'clear-samples':state.cases=state.cases.filter(c=>!c.sample);state.archive=state.archive.filter(a=>!a.sample);if(!state.cases.length&&state.sample){state.commands=[];state.defaults={vars:[],links:[]};state.globals=[];delete state.sample}save();route();toast('Examples removed');break;
     case 'pick-tag':if(!cur.tags.includes(b.dataset.t))cur.tags.push(b.dataset.t);save();renderTags();break;
