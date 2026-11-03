@@ -317,8 +317,6 @@ select.cell{font-weight:500}
 .var-add{display:flex;gap:8px}
 .var-add select{flex:1;min-width:0}
 .var-add:empty{display:none}
-.vsep{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600}
-.vsep::after{content:"";flex:1;border-top:1px dashed var(--line)}
 .vauto{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
 .vauto input{margin:0;width:14px;height:14px;accent-color:var(--accent)}
 .lnk{border:0;background:none;padding:0;font:inherit;font-family:var(--font-mono);color:var(--over);text-decoration:underline;cursor:pointer}
@@ -1128,7 +1126,7 @@ function renderVars(){
     ['Global',gk.map(k=>varRow({k,value:gVar(k).value,placeholder:'empty, set it in Variables',tags:`<span class="badge g">global</span>`,canDelete:false,attr:'readonly data-gro="1"',del:''}))]
   ].filter(g=>g[1].length);
   document.getElementById('vars').innerHTML=groups.length
-    ?groups.map(([label,rows],i)=>(i&&label?`<div class="vsep">${label}</div>`:'')+rows.join('')).join('')
+    ?groups.map(([,rows])=>rows.join('')).join('')
     :`<span class="muted-empty">No variables yet. Add a default one, type a new name, or use one in a command or link.</span>`;
   const keys=[...own,...defs];
   const need=keys.filter(k=>used.has(k)&&caseVal(cur,k)==='').length;
