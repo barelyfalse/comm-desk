@@ -19,7 +19,7 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 - **Log**: timestamped entries you add yourself, plus automatic entries for events such as case created, follow-up due or sent, auto-close set or cleared, closing email sent, and closed or reopened.
 - **TODO**: a checklist for this case. Click an item's box to change its state: `[ ]` to do → `[-]` partly done (light blue) → `[d]` done (gray, crossed out) → `[x]` canceled (dark red, crossed out). Shift-click goes back one state. **Clear done & canceled** removes the finished items.
 - **Tags**, with suggestions taken from tags already used on other cases.
-- **Links**: the default links plus links for this case only. URLs can contain placeholders. A link that is missing a value shows which variable it needs.
+- **Links**: the default links, links picked from the library with **Add a link from the library…**, and links for this case only. Removing a picked link takes it off the case; removing a default link hides it on this case (**Show hidden default links** brings it back). URLs can contain placeholders. A link that is missing a value shows which variable it needs.
 - **Variables**: the values for this case, in three groups: the case's own variables first, then default variables, then the globals it uses (read-only). Add a default variable from the **Add a default variable…** list, or type a new name for one that's only on this case. Any `{placeholder}` used by the case's commands or links appears here automatically and is flagged *needed* until it has a value. A variable that isn't used can be removed from the case.
 - **Commands**: the case's commands rendered with its values filled in. Each one has a **Copy** button. Missing values are highlighted and link to the variable that needs filling.
 - **Close / Reopen / Delete** (delete asks for confirmation).
@@ -39,7 +39,9 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 
 ## Links library (`#links`)
 
-- Default links that appear on every case, with placeholders such as `https://…/case/{caseId}`. They can be hidden on a single case.
+- A library of links with placeholders such as `https://…/case/{caseId}`. Pick the ones a case needs from its Links panel.
+- **Every case** makes a link a default: it shows on every case, and can still be hidden on a single case. Links saved before this option existed are set to **Every case**.
+- Deleting a link also removes it from every case.
 
 ## Variables (`#variables`)
 

@@ -401,17 +401,18 @@ input[type=text].td-text:focus{border-color:var(--accent);background:var(--surfa
 /* library pages, desktop-first */
 .vars-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
 @media (max-width:900px){.vars-grid{grid-template-columns:minmax(0,1fr)}}
-.dl-add.top{border-top:0;padding-top:0;padding-bottom:14px;border-bottom:1px solid var(--line);grid-template-columns:minmax(0,1fr) minmax(0,2.2fr) auto}
-.dl-head{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,2fr) 64px;gap:16px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;padding:4px 0 0}
+.dl-add.top{border-top:0;padding-top:0;padding-bottom:14px;border-bottom:1px solid var(--line);grid-template-columns:minmax(0,1fr) minmax(0,2.2fr) auto auto}
+.dl-add .dl-new-auto{align-self:center;padding-top:18px}
+.dl-head{display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,2fr) 92px 64px;gap:16px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;padding:4px 0 0}
 @media (min-width:761px){
-  .dl-item:not(.editing){display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,2fr) 64px;gap:16px}
+  .dl-item:not(.editing){display:grid;grid-template-columns:minmax(150px,.7fr) minmax(0,2fr) 92px 64px;gap:16px}
   .dl-item:not(.editing) .dl-main{display:contents}
   .dl-item:not(.editing) > .btn{justify-self:end}
   .dl-item.editing{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,2.2fr);gap:10px 12px}
   .dl-item.editing .row-end{grid-column:1/-1}
   .cmd-list{position:sticky;top:calc(68px + env(safe-area-inset-top,0px));max-height:calc(100vh - 100px);overflow-y:auto}
 }
-@media (max-width:760px){.dl-head{display:none}.dl-add.top{grid-template-columns:minmax(0,1fr)}.tabs a,.tabs button{font-size:10.5px}}
+@media (max-width:760px){.dl-head{display:none}.dl-add.top{grid-template-columns:minmax(0,1fr)}.dl-add .dl-new-auto{padding-top:0}.dl-item:not(.editing) .dl-main{flex:1}.tabs a,.tabs button{font-size:10.5px}}
 
 .hist{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
 .hrow{display:grid;grid-template-columns:76px minmax(0,1fr) 130px 150px;gap:12px;align-items:center;padding:9px 14px;font-size:13px}
@@ -678,7 +679,7 @@ async function boot(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkRemote();else flush()});
 window.addEventListener('beforeunload',e=>{if(sync.dirty||sync.inflight){flush();e.preventDefault();e.returnValue=''}});
-function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.hiddenVars||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
+function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.linkIds||=[];c.hiddenVars||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
 function migTpl(t){return (t||'').replace(/\{case\.(id|number)\}/g,'{caseId}').replace(/\{case\.name\}/g,'{caseName}').replace(/\{case\.([A-Za-z_][\w.\-]*)\}/g,'{$1}')}
 /* case page panels; settings.layout says which column each one goes in, top to bottom */
 const PANELS={case:'Case',notes:'Notes',vars:'Variables',cmds:'Commands',todo:'TODO',log:'Log',tags:'Tags',links:'Links'};
@@ -692,6 +693,8 @@ function normLayout(l){
 function normState(s){s.archive||=[];s.cases||=[];s.commands||=[];s.globals||=[];s.commands.forEach(k=>k.template=migTpl(k.template));s.cases.forEach(norm);s.defaults||={};s.defaults.vars||=[];s.defaults.links||=[];
   /* default variables used to be on every case; ones saved before the "every case" switch existed keep that */
   s.defaults.vars.forEach(v=>{if(typeof v.auto!=='boolean')v.auto=true});
+  /* same for default links: the ones saved before they could be picked per case stay on every case */
+  s.defaults.links.forEach(l=>{if(typeof l.auto!=='boolean')l.auto=true});
   s.settings||={};s.settings.layout=normLayout(s.settings.layout);s.defaults.links.forEach(l=>{l.id||=('l'+uid());l.url=migTpl(l.url)});s.cases.forEach(c=>c.links.forEach(l=>l.url=migTpl(l.url)));s.cases.filter(c=>c.closedAt&&!s.archive.some(a=>a.id===c.id)).forEach(c=>s.archive.push({id:c.id,number:c.number,name:c.name,closedAt:c.closedAt,sample:c.sample||undefined}));return s}
 
 function prevBizS(s){const[y,m,d]=s.split('-').map(Number);const x=new Date(y,m-1,d);do{x.setDate(x.getDate()-1)}while(x.getDay()===0||x.getDay()===6);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
@@ -725,8 +728,9 @@ function sample(){
   const defaults={
     vars:[{key:'region',value:'us-east',auto:true},{key:'accountId',value:'',auto:true},{key:'ticketRef',value:'',auto:false}],
     links:[
-      {id:'l'+uid(),label:'Case in tracker',url:'https://tracker.example.com/case/{caseId}'},
-      {id:'l'+uid(),label:'Account in admin console',url:'https://admin.example.com/accounts/{accountId}'}
+      {id:'l'+uid(),label:'Case in tracker',url:'https://tracker.example.com/case/{caseId}',auto:true},
+      {id:'l'+uid(),label:'Account in admin console',url:'https://admin.example.com/accounts/{accountId}',auto:true},
+      {id:'l'+uid(),label:'Service runbook',url:'https://wiki.example.com/runbooks/{service}',auto:false}
     ]};
   const globals=[{key:'username',value:'jdoe'},{key:'team',value:'support-l2'}];
   return{cases,commands:cmds,defaults,globals,sample:true};
@@ -749,10 +753,12 @@ function usedKeys(c){
   const out=new Map();
   const add=(tpl,src)=>placeholders(tpl).filter(p=>!BUILTIN[p]).forEach(p=>{const k=vkey(p);if(!out.has(k))out.set(k,new Set());out.get(k).add(src)});
   caseCmdIds(c).forEach(id=>{const k=getCmd(id);add(k.template,k.name||'Untitled command')});
-  state.defaults.links.filter(l=>!c.hiddenLinks.includes(l.id)).forEach(l=>add(l.url,l.label||'link'));
+  caseLibLinks(c).forEach(l=>add(l.url,l.label||'link'));
   c.links.forEach(l=>add(l.url,l.label||'link'));
   return out;
 }
+/* library links on this case: the "every case" ones it hasn't hidden, plus the ones picked for it */
+const caseLibLinks=c=>state.defaults.links.filter(l=>l.url&&((l.auto&&!c.hiddenLinks.includes(l.id))||c.linkIds.includes(l.id)));
 /* default variables on this case: used by its commands or links, given a value or added here, or on every case and not removed */
 function caseDefKeys(c,used=usedKeys(c)){
   return state.defaults.vars.filter(v=>v.key&&!gVar(v.key)&&(used.has(v.key)||v.key in c.fields||(v.auto&&!c.hiddenVars.includes(v.key)))).map(v=>v.key);
@@ -981,10 +987,11 @@ const PANEL_HTML={
           <div class="sugg" id="tag-sugg"></div>
         </section>`,
   links:()=>`<section class="panel">
-          <div class="p-head"><h2>Links</h2><a href="#links" class="btn ghost sm">Edit defaults</a></div>
+          <div class="p-head"><h2>Links</h2><a href="#links" class="btn ghost sm">Edit links</a></div>
           <ul class="links" id="links"></ul>
+          <div class="var-add" id="link-pick-row"></div>
           <div class="link-add"><input type="text" id="link-label" placeholder="Label"><input type="text" id="link-url" class="mono" placeholder="https://…{caseId}" autocomplete="off" spellcheck="false" inputmode="url"><button class="btn sm" data-act="add-link">Add</button></div>
-          <p class="hint">Links can use placeholders like <code>{caseId}</code> or <code>{accountId}</code>.</p>
+          <p class="hint">Pick a link from your library, or add one for this case only. Links can use placeholders like <code>{caseId}</code> or <code>{accountId}</code>.</p>
         </section>`
 };
 function renderCase(id){
@@ -1077,11 +1084,15 @@ function linkItem(l,act,key,isDef){
     :`<a class="lk go" href="${h(r.text)}" target="_blank" rel="noopener" title="${h(r.text)}"><span class="lt">${label}<svg viewBox="0 0 16 16" width="13" height="13" aria-hidden="true"><path d="M5.5 3.5h7v7M12.5 3.5l-9 9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg></span><span class="lu">${h(shortUrl(r.text))}</span></a>`;
   return `<li>${main}<span class="r">${isDef?'<span class="badge">default</span>':''}<button class="x" data-act="${act}" data-k="${h(key)}" aria-label="${isDef?'Hide on this case':'Remove link'}">×</button></span></li>`;
 }
+/* order: default links, then links picked from the library, then this case's own */
 function renderLinks(){
-  const defs=state.defaults.links.filter(l=>l.url&&!cur.hiddenLinks.includes(l.id));
-  const html=defs.map(l=>linkItem(l,'hide-link',l.id,true)).join('')+cur.links.map((l,i)=>linkItem(l,'del-link',i,false)).join('');
-  const hidden=state.defaults.links.filter(l=>cur.hiddenLinks.includes(l.id)).length;
+  const lib=caseLibLinks(cur),defs=lib.filter(l=>l.auto&&!cur.linkIds.includes(l.id)),picked=lib.filter(l=>!defs.includes(l));
+  const html=defs.map(l=>linkItem(l,'hide-link',l.id,true)).join('')+picked.map(l=>linkItem(l,'hide-link',l.id,false)).join('')+cur.links.map((l,i)=>linkItem(l,'del-link',i,false)).join('');
+  const hidden=state.defaults.links.filter(l=>l.auto&&cur.hiddenLinks.includes(l.id)).length;
   document.getElementById('links').innerHTML=(html||`<li class="muted-empty">No links.</li>`)+(hidden?`<li><button class="btn ghost sm" data-act="unhide-links">Show ${hidden} hidden default link${hidden>1?'s':''}</button></li>`:'');
+  const avail=state.defaults.links.filter(l=>l.url&&!lib.includes(l));
+  const row=document.getElementById('link-pick-row');
+  if(row)row.innerHTML=avail.length?`<select id="link-pick" aria-label="Add a link from the library"><option value="">Add a link from the library…</option>${avail.map(l=>`<option value="${l.id}">${h(l.label||shortUrl(l.url))}</option>`).join('')}</select>`:'';
 }
 const COPY_SVG='<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><rect x="5" y="5" width="8.5" height="8.5" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M3 10.5V3.5A1 1 0 0 1 4 2.5h7" fill="none" stroke="currentColor" stroke-width="1.4"/></svg>';
 function varRow({k,value,placeholder,tags,canDelete,attr,del}){
@@ -1191,15 +1202,17 @@ function renderDefaults(){
 function hlTpl(t){let html='',last=0;for(const m of t.matchAll(PH)){html+=h(t.slice(last,m.index))+`<span class="pv">${h(m[0])}</span>`;last=m.index+m[0].length}return html+h(t.slice(last))}
 function dlinksHTML(l){
   const c=document.getElementById('dl-count');if(c)c.textContent=l.length?String(l.length):'';
-  if(!l.length)return `<span class="muted-empty dl-empty">No default links yet. Add one above.</span>`;
+  if(!l.length)return `<span class="muted-empty dl-empty">No links yet. Add one above.</span>`;
+  const every=(x,i)=>`<label class="vauto" title="Put this link on every case"><input type="checkbox" data-dla="${i}" ${x.auto?'checked':''}>Every case</label>`;
   return l.map((x,i)=>ui.editLink===x.id
     ?`<div class="dl-item editing">
         <label class="f">Label<input type="text" id="dll-${i}" data-dll="${i}" value="${h(x.label)}" placeholder="e.g. Case in tracker" autocomplete="off"></label>
         <label class="f">Address<input type="text" class="mono" id="dlu-${i}" data-dlu="${i}" value="${h(x.url)}" placeholder="https://…/{caseId}" spellcheck="false" autocomplete="off" inputmode="url"></label>
-        <div class="row-end"><button class="btn sm danger" data-act="del-dlink" data-i="${i}">Delete</button><button class="btn sm primary" data-act="dl-done">Done</button></div>
+        <div class="row-end"><span class="inline-add" style="align-items:center;gap:14px"><button class="btn sm danger" data-act="del-dlink" data-i="${i}">Delete</button>${every(x,i)}</span><button class="btn sm primary" data-act="dl-done">Done</button></div>
       </div>`
     :`<div class="dl-item">
         <div class="dl-main"><b>${h(x.label)||'<span class="sub">Untitled link</span>'}</b><code>${x.url?hlTpl(x.url):'<span class="state-miss">No address</span>'}</code></div>
+        ${every(x,i)}
         <button class="btn sm" data-act="dl-edit" data-id="${x.id}">Edit</button>
       </div>`).join('');
 }
@@ -1263,14 +1276,15 @@ function renderLinksPage(){
   cur=null;
   app.innerHTML=`<div class="page">
     <div class="toolbar"><h1>Links <span class="count" id="dl-count"></span></h1></div>
-    <p class="hint">Default links show on every case. Use placeholders like <code>{caseId}</code> or <code>{accountId}</code>; each case fills them from its own variables. You can hide a default link on a single case.</p>
+    <p class="hint">Your link library. Pick the links you need on each case from its Links panel, or tick <b>Every case</b> to make a link a default that shows on all cases (it can still be hidden on a single case). Use placeholders like <code>{caseId}</code> or <code>{accountId}</code>; each case fills them from its own variables.</p>
     <section class="panel">
       <div class="dl-add top">
         <label class="f">Label<input type="text" id="dl-new-label" placeholder="e.g. Case in tracker" autocomplete="off"></label>
         <label class="f">Address<input type="text" id="dl-new-url" class="mono" placeholder="https://…/{caseId}" autocomplete="off" spellcheck="false" inputmode="url"></label>
+        <label class="vauto dl-new-auto"><input type="checkbox" id="dl-new-auto">Every case</label>
         <button class="btn primary" data-act="add-dlink">Add link</button>
       </div>
-      <div class="dl-head"><span>Label</span><span>Address</span><span></span></div>
+      <div class="dl-head"><span>Label</span><span>Address</span><span>Default</span><span></span></div>
       <div class="dl-list" id="dlinks"></div>
     </section>
   </div>`;
@@ -1446,6 +1460,8 @@ app.addEventListener('change',e=>{
   const t=e.target;
   if(t.id==='set-hints'){setHints(t.checked);toast(t.checked?'Hints shown':'Hints hidden');return}
   if(t.dataset.dva!==undefined){const x=defVar(t.dataset.dva);if(x){x.auto=t.checked;save();toast(x.auto?`${x.key} added to every case`:`${x.key} is no longer on every case`)}return}
+  if(t.dataset.dla!==undefined){const x=state.defaults.links[+t.dataset.dla];if(x){x.auto=t.checked;save();toast(x.auto?'Now a default link on every case':'No longer on every case. Pick it per case')}return}
+  if(t.id==='link-pick'&&t.value&&cur){const id=t.value,l=state.defaults.links.find(x=>x.id===id);if(l){if(l.auto)cur.hiddenLinks=cur.hiddenLinks.filter(x=>x!==id);else if(!cur.linkIds.includes(id))cur.linkIds.push(id);ensureVars(cur);save();renderLinks();renderVars();refreshCmds();document.getElementById('link-pick')?.focus()}return}
   if(t.id==='var-pick'&&t.value&&cur){const k=t.value;addDefVar(cur,k);save();renderVars();refreshCmds();document.querySelector(`#vars .var[data-row="${CSS.escape(k)}"] input`)?.focus();return}
   if(t.id==='f-last'&&cur&&t.value){const before=cur.autoClose;lastCommChanged(cur);if(fuOnLastComm(cur))toast(`Follow up #${cur.fuCount} counted`);save();syncForm();const fa=document.getElementById('f-auto');if(fa)fa.value=cur.autoClose||'';updateHead();renderLog();if(before&&!cur.autoClose)toast('Auto-close cleared. Pick the next comm phase');return}
   if(t.id==='f-auto'&&cur){if(cur.autoClose&&/^\d{4}-\d{2}-\d{2}$/.test(cur.autoClose)){applyAuto(cur);autoLog(cur,`Auto-close set for ${fmtW(cur.autoClose)}`);save();syncForm();updateHead();renderLog();toast(`Phase set to ${cur.phase}, next comm ${fmt(cur.commDate)}`)}else{save();updateHead()}return}
@@ -1485,10 +1501,10 @@ document.addEventListener('click',e=>{
     case 'new-case':{const c=norm({id:'c'+uid(),number:'',name:'',phase:'',commDate:'',lastComm:iso(new Date()),notes:''});autoLog(c,'Case created');state.cases.push(c);save();location.hash='case-'+c.id;setTimeout(()=>document.getElementById('f-number')?.focus(),0);break}
     case 'clear-samples':state.cases=state.cases.filter(c=>!c.sample);state.archive=state.archive.filter(a=>!a.sample);if(!state.cases.length&&state.sample){state.commands=[];state.defaults={vars:[],links:[]};state.globals=[];delete state.sample}save();route();toast('Examples removed');break;
     case 'pick-tag':if(!cur.tags.includes(b.dataset.t))cur.tags.push(b.dataset.t);save();renderTags();break;
-    case 'hide-link':cur.hiddenLinks.push(b.dataset.k);save();renderLinks();renderVars();break;
-    case 'unhide-links':cur.hiddenLinks=[];ensureVars(cur);save();renderLinks();renderVars();break;
-    case 'add-dlink':{const L=document.getElementById('dl-new-label'),U=document.getElementById('dl-new-url');let url=migTpl(U.value.trim());if(!url){toast('Add an address first');U.focus();break}if(!/^[a-z]+:\/\//i.test(url))url='https://'+url;state.defaults.links.push({id:'l'+uid(),label:L.value.trim(),url});L.value='';U.value='';save();renderDefaults();toast('Link added to every case');break}
-    case 'del-dlink':state.defaults.links.splice(i,1);ui.editLink=null;save();renderDefaults();break;
+    case 'hide-link':{const id=b.dataset.k;if(cur.linkIds.includes(id))cur.linkIds=cur.linkIds.filter(x=>x!==id);else if(!cur.hiddenLinks.includes(id))cur.hiddenLinks.push(id);save();renderLinks();renderVars();break}
+    case 'unhide-links':cur.hiddenLinks=cur.hiddenLinks.filter(id=>!state.defaults.links.some(l=>l.id===id&&l.auto));ensureVars(cur);save();renderLinks();renderVars();break;
+    case 'add-dlink':{const L=document.getElementById('dl-new-label'),U=document.getElementById('dl-new-url');let url=migTpl(U.value.trim());if(!url){toast('Add an address first');U.focus();break}if(!/^[a-z]+:\/\//i.test(url))url='https://'+url;const A=document.getElementById('dl-new-auto');state.defaults.links.push({id:'l'+uid(),label:L.value.trim(),url,auto:A.checked});toast(A.checked?'Link added to every case':'Link added. Pick it on the cases that need it');L.value='';U.value='';A.checked=false;save();renderDefaults();break}
+    case 'del-dlink':{const [gone]=state.defaults.links.splice(i,1);if(gone)state.cases.forEach(c=>{c.linkIds=c.linkIds.filter(x=>x!==gone.id);c.hiddenLinks=c.hiddenLinks.filter(x=>x!==gone.id)});ui.editLink=null;save();renderDefaults();break}
     case 'dl-edit':ui.editLink=b.dataset.id;renderDefaults();document.querySelector('.dl-item.editing input')?.focus();break;
     case 'dl-done':ui.editLink=null;renderDefaults();break;
     case 'add-log':addLog();break;
