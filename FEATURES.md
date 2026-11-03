@@ -4,7 +4,7 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 
 ## Cases (home)
 
-- **Ledger** of open cases, sorted by next comm date (soonest and overdue first). Each row shows the case number, name, tags, notes, comm phase, last comm, next comm and auto-close.
+- **Ledger** of open cases, sorted by next comm date (soonest and overdue first). Each row shows the case number with a small complexity meter and the tags under it, the name with the notes under it, then comm phase, last comm, next comm and auto-close. Tags that don't fit on one line collapse into a **+N** chip (hover to see them all).
 - **Due states** are color-coded: overdue (red), today (orange), tomorrow (yellow), later and no date. A legend counts overdue, due-today and due-tomorrow cases.
 - **Inline editing**: you can change the phase, last comm and next comm dates directly in the row. The list re-sorts after you leave the field.
 - **Search** across number, name, tags, notes and phase.
@@ -14,13 +14,13 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 
 ## Case workspace
 
-- **Case panel**: number, name, comm phase (`Waiting`, `Update`, `Follow Up`, `Closing soon`, `Closing`, or a custom phase), last comm, next comm, optional auto-close date, and a 1–5 complexity rating.
+- **Case panel**: number, name, comm phase (`Waiting`, `Update`, `Follow Up`, `Closing soon`, `Closing`, or a custom phase), last comm, next comm, optional auto-close date, and a 1–5 complexity rating (the bars in the panel header).
 - **Notes**: free text.
 - **Log**: timestamped entries you add yourself, plus automatic entries for events such as case created, follow-up due or sent, auto-close set or cleared, closing email sent, and closed or reopened.
 - **TODO**: a checklist for this case. Click an item's box to change its state: `[ ]` to do → `[-]` partly done (light blue) → `[d]` done (gray, crossed out) → `[x]` canceled (dark red, crossed out). Shift-click goes back one state. **Clear done & canceled** removes the finished items.
 - **Tags**, with suggestions taken from tags already used on other cases.
 - **Links**: the default links plus links for this case only. URLs can contain placeholders. A link that is missing a value shows which variable it needs.
-- **Variables**: the values for this case. Any `{placeholder}` used by the case's commands or links appears here automatically and is flagged *needed* until it has a value.
+- **Variables**: the values for this case, in three groups: the case's own variables first, then default variables, then the globals it uses (read-only). Add a default variable from the **Add a default variable…** list, or type a new name for one that's only on this case. Any `{placeholder}` used by the case's commands or links appears here automatically and is flagged *needed* until it has a value. A variable that isn't used can be removed from the case.
 - **Commands**: the case's commands rendered with its values filled in. Each one has a **Copy** button. Missing values are highlighted and link to the variable that needs filling.
 - **Close / Reopen / Delete** (delete asks for confirmation).
 
@@ -44,19 +44,21 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 ## Variables (`#variables`)
 
 - **Global bank**: one value shared by every case, such as your username or team. It is read-only on cases.
-- **Default variables**: every case gets its own copy, either empty or with a starting value.
+- **Default variables**: a library of variables, either empty or with a starting value that each case can change. Like commands, you add them to a case one by one, or tick **Every case** to put one on all cases (it can still be removed from a single case). A case also gets one automatically when its commands or links use it. Default variables created before this option existed are set to **Every case**.
 - **Resolution order** for `{name}`: built-ins (`caseId`, `caseName`), then global, then the case's own value, then the default value.
 
-## Data
+## Settings (`#settings`)
 
+- **Case page layout**: two columns of panels (Case, Notes, Variables, Commands, TODO, Log, Tags, Links). Drag a panel to reorder it or move it to the other column, or use its arrow buttons. **Reset to default** restores the original layout. The layout is saved with the data, so it's the same on every device. If one column is left empty, the case page uses a single full-width column.
+- **Show hints**: shows or hides the explanatory hints. Saved in this browser, so each device keeps its own choice.
+- **Session**: sign out.
 - **Back up**: copy all data as JSON.
 - **Restore**: paste JSON to replace all data. In the server version, the replaced data is kept as a snapshot.
 - **Erase everything** is not in the web page in the server version. It's a server command (`main.py erase`).
-- On first load, sample cases and commands are created. **Remove examples** clears them.
+- On first load, sample cases and commands are created. **Remove examples** (on the Cases page) clears them.
 
 ## UI
 
-- Light and dark themes that follow the system setting.
-- **Hints** toggle (the **?** button in the top bar) shows or hides the explanatory hints. The choice is saved in this browser, so each device keeps its own.
+- Light and dark themes that follow the system setting. The dark theme uses muted warning and alert colors.
 - Responsive layout. On phones the ledger becomes cards and a bottom tab bar replaces the top navigation.
-- Hash-based routing: `#home`, `#case-<id>`, `#commands`, `#command-<id>`, `#links`, `#variables`, `#history`.
+- Hash-based routing: `#home`, `#case-<id>`, `#commands`, `#command-<id>`, `#links`, `#variables`, `#history`, `#settings`.

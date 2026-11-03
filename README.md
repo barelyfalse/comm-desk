@@ -51,6 +51,12 @@ If `enable-linger` isn't allowed on your VM, run the server inside `tmux` instea
 
 Optional environment variables: `COMMDESK_PORT` (default `8000`), `COMMDESK_HOST` (default `127.0.0.1`), and `COMMDESK_DATA` (default `./data`).
 
+## Updating
+
+Run `git pull`, then reload the page. The server reads `server/static/` on every request, so a change to the app alone needs no restart. Restart the service only when `server/main.py` or the dependencies changed (`systemctl --user restart commdesk`).
+
+Saved data from older versions is upgraded in the browser when the page loads, and written back with the next save. If something looks wrong, the hourly snapshots (`main.py snapshots` / `restore`) still have the data as it was.
+
 ## Opening it from the Chromebox
 
 Forward local port 8000 to the VM's port 8000 when you connect, then open `http://localhost:8000` in Chrome.
@@ -64,14 +70,14 @@ Use `localhost`, not the VM's IP address. The copy buttons need a secure context
 ## Moving your existing data
 
 1. In the old `Comm Desk.html` (the Artifact), open **Data → Copy data as JSON**.
-2. In the server version, open **Data**, paste the JSON into **Restore** and confirm.
+2. In the server version, open **Settings**, paste the JSON into **Restore** and confirm.
 
 ## Sign-in
 
 - There is one password and no sign-up. The password is stored only as a scrypt hash in `data/password.hash`. To change it, run `set-password` again and restart the server.
 - A successful sign-in sets an HttpOnly, SameSite=Strict cookie signed with `data/secret.key`. It is valid for 24 hours.
 - After 5 failed attempts within a minute, sign-in is blocked for the rest of that minute.
-- **Sign out** is in the Data panel. To end every session at once, delete `data/secret.key` and restart the server.
+- **Sign out** is on the Settings page. To end every session at once, delete `data/secret.key` and restart the server.
 
 ## How saving works
 

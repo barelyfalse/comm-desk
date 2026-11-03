@@ -28,14 +28,14 @@
   --bg:#0e1218; --surface:#151a23; --surface-2:#1a2030; --line:#252c3a; --line-strong:#343d4f;
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
-  --over:#ff7c6c; --over-soft:#3a1c19; --today:#f1a352; --today-soft:#382614; --tmrw:#e4c64a; --tmrw-soft:#322d10; --later:#9aa2b3;
-  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#b4574b; color-scheme:dark}}
+  --over:#d8958d; --over-soft:#2a2023; --today:#d4a777; --today-soft:#29231d; --tmrw:#c8b778; --tmrw-soft:#26251d; --later:#9aa2b3;
+  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#a8706a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1218; --surface:#151a23; --surface-2:#1a2030; --line:#252c3a; --line-strong:#343d4f;
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
-  --over:#ff7c6c; --over-soft:#3a1c19; --today:#f1a352; --today-soft:#382614; --tmrw:#e4c64a; --tmrw-soft:#322d10; --later:#9aa2b3;
-  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#b4574b; color-scheme:dark}
+  --over:#d8958d; --over-soft:#2a2023; --today:#d4a777; --today-soft:#29231d; --tmrw:#c8b778; --tmrw-soft:#26251d; --later:#9aa2b3;
+  --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#a8706a; color-scheme:dark}
 
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--fg);font-family:var(--font-ui);font-size:14px;line-height:1.45}
@@ -68,6 +68,7 @@ h2{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;
 /* controls */
 .btn{border:1px solid var(--line-strong);background:var(--surface);border-radius:6px;padding:7px 12px;cursor:pointer;font-weight:500;white-space:nowrap}
 .btn:hover{border-color:var(--muted)}
+a.btn{text-decoration:none}
 .btn.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-fg)}
 .btn.primary:hover{filter:brightness(1.08)}
 .btn.sm{padding:4px 9px;font-size:12.5px}
@@ -96,8 +97,8 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-soft);border-radius:var(--r);padding:10px 14px;font-size:13px}
 
 .ledger{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow-x:auto}
-.lrow{display:grid;grid-template-columns:76px minmax(240px,1fr) 150px 132px 132px 150px;
-  gap:12px;align-items:center;padding:10px 14px 10px 11px;border-left:3px solid transparent;min-width:1010px;color:inherit}
+.lrow{display:grid;grid-template-columns:156px minmax(220px,1fr) 150px 132px 132px 150px;
+  gap:12px;align-items:center;padding:10px 14px 10px 11px;border-left:3px solid transparent;min-width:1046px;color:inherit}
 .lrow[data-href]{cursor:pointer}
 .lrow+.lrow{border-top:1px solid var(--line)}
 .lrow[data-href]:hover{background:var(--surface-2)}
@@ -105,6 +106,17 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .lrow.s-over{border-left-color:var(--over)} .lrow.s-today{border-left-color:var(--today)} .lrow.s-tmrw{border-left-color:var(--tmrw)}
 .c-num{display:flex;align-items:center;gap:6px;min-width:0}
 .c-num .mono{font-weight:600;font-size:13px}
+/* ledger: number + complexity on line 1, tags on line 2; title on line 1, notes on line 2 */
+.lrow .c-num{flex-direction:column;align-items:flex-start;gap:3px}
+.c-id{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%;min-height:20px}
+.c-tags{display:flex;gap:4px;flex-wrap:nowrap;overflow:hidden;max-width:100%;min-height:18px}
+.c-tags .chip{flex:none;display:block;line-height:16px;white-space:nowrap}
+.c-tags.fit .chip:first-child{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.c-tags .chip.more{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--muted)}
+.cxm{display:inline-flex;align-items:flex-end;gap:2px;height:10px;flex:none}
+.cxm i{width:3px;border-radius:1px;background:var(--line)}
+.cxm i:nth-child(1){height:4px}.cxm i:nth-child(2){height:5.5px}.cxm i:nth-child(3){height:7px}.cxm i:nth-child(4){height:8.5px}.cxm i:nth-child(5){height:10px}
+.cxm i.on{background:var(--faint)}
 .num-copy{border:0;background:none;padding:2px 3px;margin:-2px -3px;border-radius:4px;cursor:copy;color:inherit;text-align:left;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .num-copy:hover{background:var(--accent-soft);color:var(--mark-fg)}
 .num-copy:disabled{cursor:default;background:none;color:inherit}
@@ -115,9 +127,8 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .c-main{min-width:0;display:flex;flex-direction:column;gap:3px}
 .c-name{font-weight:600;color:var(--fg);text-decoration:none;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .c-name:hover{text-decoration:underline}
-.c-meta{display:flex;gap:6px;align-items:center;min-width:0}
-.c-meta .chip{flex:none}
-.c-notes{color:var(--muted);font-size:12.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.c-name{line-height:20px}
+.c-notes{color:var(--muted);font-size:12.5px;line-height:18px;min-height:18px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
 .c-phase,.c-last,.c-next,.c-auto{display:flex;flex-direction:column;gap:2px;min-width:0}
 .cell{padding:4px 6px;font-size:12.5px;background:transparent;border-color:transparent;border-radius:5px;cursor:pointer}
 .lrow:hover .cell{border-color:var(--line);background:var(--surface)}
@@ -157,7 +168,9 @@ select.cell{font-weight:500}
   .c-num{grid-area:num}.c-main{grid-area:main}.c-phase{grid-area:phase}.c-last{grid-area:last}.c-next{grid-area:next}
   .c-auto{grid-area:auto;align-items:flex-end;text-align:right}.c-auto>.sub:only-child{display:none}
   .c-name{white-space:normal}
-  .c-meta{flex-wrap:wrap}.c-notes{white-space:normal}
+  .c-notes{white-space:normal}
+  .c-tags{flex-wrap:wrap}
+  .c-tags:empty,.c-notes:empty{display:none}
   .cell{border-color:var(--line);background:var(--surface-2)}
   .c-last::before{content:"Last comm";font-size:11px;color:var(--faint)}
   .c-next::before{content:"Next comm";font-size:11px;color:var(--faint)}
@@ -175,6 +188,7 @@ select.cell{font-weight:500}
 .ch-status{display:flex;gap:10px;align-items:center}
 .case-grid{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:16px;align-items:start}
 .col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.case-grid.one{grid-template-columns:minmax(0,1fr)}
 @media (max-width:900px){.case-grid{grid-template-columns:minmax(0,1fr)}}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .p-head{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:24px}
@@ -183,9 +197,6 @@ select.cell{font-weight:500}
 @media (max-width:480px){.form{grid-template-columns:minmax(0,1fr)}}
 .hint{font-size:12.5px;color:var(--muted);margin:0;max-width:70ch}
 :root[data-hints="off"] .hint{display:none}
-.hints-btn{flex:none;width:26px;height:26px;border-radius:99px;border:1px solid var(--line);background:none;color:var(--faint);font-weight:700;font-size:13px;line-height:1;cursor:pointer;display:grid;place-items:center}
-.hints-btn:hover{color:var(--fg);border-color:var(--muted)}
-.hints-btn[aria-pressed="true"]{color:var(--accent);border-color:color-mix(in srgb,var(--accent) 45%,transparent);background:var(--accent-soft)}
 .hint code,.code-inline{font-family:var(--font-mono);font-size:12px;background:var(--code-bg);padding:1px 5px;border-radius:4px}
 
 /* log */
@@ -304,6 +315,12 @@ select.cell{font-weight:500}
 .ib:hover{color:var(--fg);border-color:var(--line-strong)}
 .x-space{width:20px;flex:none}
 .var-add{display:flex;gap:8px}
+.var-add select{flex:1;min-width:0}
+.var-add:empty{display:none}
+.vsep{grid-column:1/-1;display:flex;align-items:center;gap:8px;font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600}
+.vsep::after{content:"";flex:1;border-top:1px dashed var(--line)}
+.vauto{display:inline-flex;align-items:center;gap:4px;font-size:11.5px;color:var(--muted);cursor:pointer;white-space:nowrap}
+.vauto input{margin:0;width:14px;height:14px;accent-color:var(--accent)}
 .lnk{border:0;background:none;padding:0;font:inherit;font-family:var(--font-mono);color:var(--over);text-decoration:underline;cursor:pointer}
 @media (max-width:760px){.vbody{grid-template-columns:minmax(0,1fr) 40px 40px}.ib-slot{width:40px;height:40px}}
 
@@ -331,7 +348,7 @@ input[type=text].td-text:focus{border-color:var(--accent);background:var(--surfa
 .var input[readonly]{background:transparent;border-style:dashed;color:var(--muted)}
 .defaults-grid.one{grid-template-columns:minmax(0,1fr)}
 @media (max-width:760px){
-  .nav,#data-btn{display:none}
+  .nav,.bar .set-link{display:none}
   .bar-in{height:48px}
   .wrap{padding-block:16px calc(84px + env(safe-area-inset-bottom,0px))}
   .tabs{display:grid;grid-template-columns:repeat(5,1fr);position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
@@ -339,7 +356,7 @@ input[type=text].td-text:focus{border-color:var(--accent);background:var(--surfa
   .tabs a,.tabs button{display:flex;flex-direction:column;align-items:center;gap:3px;padding:6px 0;font-size:11px;font-weight:600;color:var(--muted);text-decoration:none;background:none;border:0;cursor:pointer;border-radius:8px}
   .tabs svg{width:22px;height:22px;fill:currentColor;stroke:currentColor}
   .tabs [aria-current="page"]{color:var(--accent)}
-  .toast{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
+  body .toast{bottom:calc(80px + env(safe-area-inset-bottom,0px))}
   .x{min-width:36px;min-height:36px;font-size:18px;display:inline-grid;place-items:center}
   .ib{width:40px;height:40px}
   .x-space{width:36px}
@@ -416,21 +433,41 @@ input[type=text].td-text:focus{border-color:var(--accent);background:var(--surfa
 .ac-note.k-nophase{background:var(--over-soft);border-color:color-mix(in srgb,var(--over) 40%,transparent);color:var(--fg)}
 select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);background:var(--over-soft);color:var(--over)}
 .lrow select.cell.nophase{border-color:color-mix(in srgb,var(--over) 45%,transparent);background:var(--over-soft);color:var(--over)}
-.cx-row{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.cx-lbl{font-size:12px;color:var(--muted);font-weight:500}
-.seg{display:inline-flex;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--surface-2)}
-.seg button{border:0;background:transparent;width:34px;height:30px;cursor:pointer;font-weight:600;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
-.seg button+button{border-left:1px solid var(--line)}
-.seg button:hover{color:var(--fg)}
-.seg button[aria-checked="true"]{background:var(--accent);color:var(--accent-fg)}
-@media (max-width:760px){.seg button{width:44px;height:38px}}
+/* complexity: five rising bars in the Case panel header (the ledger shows a small read-only copy, .cxm) */
+.cx{display:flex;align-items:center}
+.cx-lbl{font-size:12px;color:var(--muted);font-weight:500;margin-right:6px}
+.cx button{border:0;background:none;padding:0;width:12px;height:24px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;cursor:pointer;border-radius:3px}
+.cx button i{display:block;width:6px;border-radius:2px;background:var(--line-strong)}
+.cx button:nth-of-type(1) i{height:6px}.cx button:nth-of-type(2) i{height:9px}.cx button:nth-of-type(3) i{height:12px}.cx button:nth-of-type(4) i{height:15px}.cx button:nth-of-type(5) i{height:18px}
+.cx button.on i{background:var(--accent)}
+.cx button:hover i{background:var(--muted)}
+.cx button.on:hover i{background:color-mix(in srgb,var(--accent) 75%,var(--fg))}
+.cx-n{font-size:12px;color:var(--faint);margin-left:6px;font-variant-numeric:tabular-nums;min-width:36px}
+@media (max-width:760px){.cx button{width:22px;height:36px;padding-bottom:8px}}
 
-/* data drawer */
-.drawer{background:var(--surface);border-bottom:1px solid var(--line);padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:16px}
-.drawer-in{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
-.drawer-in > div{display:flex;flex-direction:column;gap:8px;min-width:0}
-.drawer textarea{font-family:var(--font-mono);font-size:12px;height:70px}
-@media (max-width:760px){.drawer-in{grid-template-columns:minmax(0,1fr)}}
+/* settings */
+.set-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted)}
+.set-link svg{width:15px;height:15px}
+.set-link[aria-current="page"]{color:var(--fg);background:var(--surface-2)}
+.set-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;align-items:start}
+@media (max-width:760px){.set-grid{grid-template-columns:minmax(0,1fr)}}
+.set-grid textarea{font-family:var(--font-mono);font-size:12px;height:90px}
+.lay{display:grid;grid-template-columns:minmax(0,1.45fr) minmax(0,1fr);gap:12px;max-width:760px}
+.lay-col{display:flex;flex-direction:column;gap:6px;min-width:0;background:var(--surface-2);border:1px dashed var(--line-strong);border-radius:var(--r);padding:8px}
+.lay-col.over{border-color:var(--accent);background:var(--accent-soft)}
+.lay-h{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;padding:2px 4px}
+.lay-list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:6px;min-height:44px}
+.lay-list:empty::after{content:"Drop panels here";display:grid;place-items:center;height:44px;color:var(--faint);font-size:12.5px}
+.lay-item{display:flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:4px 4px 4px 8px;cursor:grab;user-select:none;min-height:40px}
+.lay-item:hover{border-color:var(--line-strong)}
+.lay-item.dragging{opacity:.45;border-style:dashed}
+.lay-item .grip{color:var(--faint);flex:none;display:grid}
+.lay-item .lay-name{flex:1;font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.lay-btns{display:flex;gap:2px;flex:none}
+.lay-btns .ib{width:28px;height:28px;border-color:transparent;background:transparent}
+.lay-btns .ib:hover:not(:disabled){border-color:var(--line)}
+.lay-btns .ib:disabled{opacity:.3;cursor:default}
+@media (max-width:760px){.lay{grid-template-columns:minmax(0,1fr)}.lay-btns .ib{width:36px;height:36px}}
 
 /* save status */
 .sync{display:inline-flex;align-items:center;gap:6px;border:1px solid transparent;background:none;border-radius:99px;padding:4px 10px 4px 8px;font-size:12.5px;font-weight:500;color:var(--faint);cursor:default;white-space:nowrap}
@@ -462,39 +499,18 @@ select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);backg
       <a href="#variables" data-nav="vars">Variables</a>
     </nav>
     <button type="button" class="sync" id="sync" data-act="sync-retry" data-s="loading" aria-live="polite"></button>
-    <button type="button" class="hints-btn" id="hints-btn" data-act="toggle-hints" aria-pressed="true" title="Hide hints" aria-label="Hints">?</button>
-    <button class="btn ghost sm" data-act="toggle-data" id="data-btn">Data</button>
+    <a class="btn ghost sm set-link" href="#settings" data-nav="settings"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M10 2.5v2.2M10 15.3v2.2M17.5 10h-2.2M4.7 10H2.5M15.3 4.7l-1.6 1.6M6.3 13.7l-1.6 1.6M15.3 15.3l-1.6-1.6M6.3 6.3L4.7 4.7" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>Settings</a>
   </div>
 </header>
 <div class="sync-banner" id="sync-banner" role="alert" hidden><div class="sync-banner-in"><span id="sync-msg"></span>
   <span class="inline-add"><button class="btn sm" data-act="sync-theirs">Load saved data</button><button class="btn sm primary" data-act="sync-mine">Overwrite with mine</button></span></div></div>
-<section class="drawer" id="drawer" hidden>
-  <div class="drawer-in">
-    <div>
-      <h2>Back up</h2>
-      <p class="hint">Everything is saved on the Comm Desk server. Copy the data as JSON to keep an extra backup or move it elsewhere.</p>
-      <div><button class="btn sm" data-act="export">Copy data as JSON</button></div>
-    </div>
-    <div>
-      <h2>Restore</h2>
-      <textarea id="import-box" placeholder="Paste JSON from a backup" spellcheck="false"></textarea>
-      <div class="inline-add" id="import-actions"><button class="btn sm" data-act="import">Replace data with this</button></div>
-      <p class="hint">The server snapshots the current data first, so this can be undone with <code>main.py restore</code>.</p>
-    </div>
-    <div>
-      <h2>Session</h2>
-      <p class="hint">Sign-ins last 24 hours. Signing out waits for pending changes to save.</p>
-      <div><button class="btn sm" data-act="logout">Sign out</button></div>
-    </div>
-  </div>
-</section>
 <main class="wrap"><div id="app"></div></main>
 <nav class="tabs" aria-label="Main">
   <a href="#home" data-nav="cases"><svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="4" width="14" height="3" rx="1"/><rect x="3" y="9" width="14" height="3" rx="1"/><rect x="3" y="14" width="9" height="3" rx="1"/></svg>Cases</a>
   <a href="#commands" data-nav="cmds"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6l4 4-4 4" fill="none" stroke-width="1.8"/><path d="M10 15h6" fill="none" stroke-width="1.8"/></svg>Commands</a>
   <a href="#links" data-nav="links"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M8.5 11.5a3.2 3.2 0 0 0 4.5 0l2.6-2.6a3.2 3.2 0 0 0-4.5-4.5l-1 1M11.5 8.5a3.2 3.2 0 0 0-4.5 0l-2.6 2.6a3.2 3.2 0 0 0 4.5 4.5l1-1" fill="none" stroke-width="1.7" stroke-linecap="round"/></svg>Links</a>
   <a href="#variables" data-nav="vars"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M7 3.5C5 3.5 5 5 5 7s-1.5 3-1.5 3S5 11 5 13s0 3.5 2 3.5M13 3.5c2 0 2 1.5 2 3.5s1.5 3 1.5 3S15 11 15 13s0 3.5-2 3.5" fill="none" stroke-width="1.6"/></svg>Variables</a>
-  <button type="button" data-act="toggle-data"><svg viewBox="0 0 20 20" aria-hidden="true"><ellipse cx="10" cy="5" rx="6" ry="2.2" fill="none" stroke-width="1.6"/><path d="M4 5v10c0 1.2 2.7 2.2 6 2.2s6-1 6-2.2V5M4 10c0 1.2 2.7 2.2 6 2.2s6-1 6-2.2" fill="none" stroke-width="1.6"/></svg>Data</button>
+  <a href="#settings" data-nav="settings"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6" fill="none" stroke-width="1.6"/><path d="M10 2.5v2.2M10 15.3v2.2M17.5 10h-2.2M4.7 10H2.5M15.3 4.7l-1.6 1.6M6.3 13.7l-1.6 1.6M15.3 15.3l-1.6-1.6M6.3 6.3L4.7 4.7" fill="none" stroke-width="1.6" stroke-linecap="round"/></svg>Settings</a>
 </nav>
 <div class="toast" id="toast" role="status"></div>
 
@@ -503,7 +519,9 @@ select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);backg
 const LS='casedesk.v1';
 /* hints: a per-device display preference, so it lives in this browser rather than in the case data */
 const HINTS='commdesk.hints';
-function applyHints(on){document.documentElement.dataset.hints=on?'on':'off';const b=document.getElementById('hints-btn');b.setAttribute('aria-pressed',on);b.title=on?'Hide hints':'Show hints'}
+function applyHints(on){document.documentElement.dataset.hints=on?'on':'off';const b=document.getElementById('set-hints');if(b)b.checked=on}
+function setHints(on){applyHints(on);try{localStorage.setItem(HINTS,on?'on':'off')}catch(e){}}
+const hintsOn=()=>document.documentElement.dataset.hints!=='off';
 try{applyHints(localStorage.getItem(HINTS)!=='off')}catch(e){applyHints(true)}
 const PHASES=['Waiting','Update','Follow Up','Closing soon','Closing'];
 const PHASE_MAP={'Future update':'Update','INCRUP':'Update','Waiting response':'Waiting','48-h follow up':'Follow Up','Closing tomorrow':'Closing soon','Waiting closing':'Waiting'};
@@ -660,9 +678,21 @@ async function boot(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkRemote();else flush()});
 window.addEventListener('beforeunload',e=>{if(sync.dirty||sync.inflight){flush();e.preventDefault();e.returnValue=''}});
-function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
+function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.hiddenVars||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
 function migTpl(t){return (t||'').replace(/\{case\.(id|number)\}/g,'{caseId}').replace(/\{case\.name\}/g,'{caseName}').replace(/\{case\.([A-Za-z_][\w.\-]*)\}/g,'{$1}')}
-function normState(s){s.archive||=[];s.cases||=[];s.commands||=[];s.globals||=[];s.commands.forEach(k=>k.template=migTpl(k.template));s.cases.forEach(norm);s.defaults||={};s.defaults.vars||=[];s.defaults.links||=[];s.defaults.links.forEach(l=>{l.id||=('l'+uid());l.url=migTpl(l.url)});s.cases.forEach(c=>c.links.forEach(l=>l.url=migTpl(l.url)));s.cases.filter(c=>c.closedAt&&!s.archive.some(a=>a.id===c.id)).forEach(c=>s.archive.push({id:c.id,number:c.number,name:c.name,closedAt:c.closedAt,sample:c.sample||undefined}));return s}
+/* case page panels; settings.layout says which column each one goes in, top to bottom */
+const PANELS={case:'Case',notes:'Notes',vars:'Variables',cmds:'Commands',todo:'TODO',log:'Log',tags:'Tags',links:'Links'};
+const LAYOUT0=[['case','notes','vars','cmds'],['todo','log','tags','links']];
+function normLayout(l){
+  const seen=new Set(),out=[[],[]];
+  if(Array.isArray(l))l.slice(0,2).forEach((col,i)=>Array.isArray(col)&&col.forEach(k=>{if(PANELS[k]&&!seen.has(k)){seen.add(k);out[i].push(k)}}));
+  LAYOUT0.forEach((col,i)=>col.forEach(k=>{if(!seen.has(k))out[i].push(k)})); /* panels added in a later version land in their usual column */
+  return out;
+}
+function normState(s){s.archive||=[];s.cases||=[];s.commands||=[];s.globals||=[];s.commands.forEach(k=>k.template=migTpl(k.template));s.cases.forEach(norm);s.defaults||={};s.defaults.vars||=[];s.defaults.links||=[];
+  /* default variables used to be on every case; ones saved before the "every case" switch existed keep that */
+  s.defaults.vars.forEach(v=>{if(typeof v.auto!=='boolean')v.auto=true});
+  s.settings||={};s.settings.layout=normLayout(s.settings.layout);s.defaults.links.forEach(l=>{l.id||=('l'+uid());l.url=migTpl(l.url)});s.cases.forEach(c=>c.links.forEach(l=>l.url=migTpl(l.url)));s.cases.filter(c=>c.closedAt&&!s.archive.some(a=>a.id===c.id)).forEach(c=>s.archive.push({id:c.id,number:c.number,name:c.name,closedAt:c.closedAt,sample:c.sample||undefined}));return s}
 
 function prevBizS(s){const[y,m,d]=s.split('-').map(Number);const x=new Date(y,m-1,d);do{x.setDate(x.getDate()-1)}while(x.getDay()===0||x.getDay()===6);return `${x.getFullYear()}-${String(x.getMonth()+1).padStart(2,'0')}-${String(x.getDate()).padStart(2,'0')}`}
 function sample(){
@@ -693,7 +723,7 @@ function sample(){
     ,{number:'10000007',name:'Export missing rows',phase:'Closing',commDate:'',lastComm:addDays(-20),closedAt:addDays(-16),notes:'',tags:[],links:[],fields:{},commands:[],log:[]}
   ].map(c=>norm({id:'c'+uid(),sample:true,...c}));
   const defaults={
-    vars:[{key:'region',value:'us-east'},{key:'accountId',value:''}],
+    vars:[{key:'region',value:'us-east',auto:true},{key:'accountId',value:'',auto:true},{key:'ticketRef',value:'',auto:false}],
     links:[
       {id:'l'+uid(),label:'Case in tracker',url:'https://tracker.example.com/case/{caseId}'},
       {id:'l'+uid(),label:'Account in admin console',url:'https://admin.example.com/accounts/{accountId}'}
@@ -723,6 +753,12 @@ function usedKeys(c){
   c.links.forEach(l=>add(l.url,l.label||'link'));
   return out;
 }
+/* default variables on this case: used by its commands or links, given a value or added here, or on every case and not removed */
+function caseDefKeys(c,used=usedKeys(c)){
+  return state.defaults.vars.filter(v=>v.key&&!gVar(v.key)&&(used.has(v.key)||v.key in c.fields||(v.auto&&!c.hiddenVars.includes(v.key)))).map(v=>v.key);
+}
+function addDefVar(c,k){c.hiddenVars=c.hiddenVars.filter(x=>x!==k);if(!caseDefKeys(c).includes(k))c.fields[k]=''}
+function removeDefVar(c,k){delete c.fields[k];if(defVar(k)?.auto&&!c.hiddenVars.includes(k))c.hiddenVars.push(k)}
 function ensureVars(c){
   let changed=false;
   for(const k of usedKeys(c).keys()){if(!(k in c.fields)&&!defVar(k)&&!gVar(k)){c.fields[k]='';changed=true}}
@@ -836,15 +872,34 @@ function renderRows(){
   const head=`<div class="lrow lhead"><span>Case</span><span>Details</span><span>Comm phase</span><span>Last comm</span><span>Next comm</span><span>Auto-close</span></div>`;
   const rows=list.map(rowHTML).join('');
   document.getElementById('ledger').innerHTML=list.length?head+rows:`${head}<div class="empty">${q?'No open cases match that search.':state.cases.length?'No open cases.':'No cases yet. Use New case to add your first one.'}</div>`;
+  fitTags();
 }
+/* tags sit on one line under the case number: hide the ones that don't fit behind a "+N" chip */
+function fitTags(){
+  document.querySelectorAll('#ledger .c-tags').forEach(el=>{
+    const chips=[...el.querySelectorAll('.chip:not(.more)')];
+    el.querySelector('.more')?.remove();el.classList.remove('fit');chips.forEach(x=>x.hidden=false);
+    if(!chips.length||getComputedStyle(el).flexWrap!=='nowrap'||el.scrollWidth<=el.clientWidth)return;
+    const more=document.createElement('span');more.className='chip more';el.append(more);
+    for(let n=chips.length-1;n>=1;n--){chips[n].hidden=true;more.textContent='+'+(chips.length-n);if(el.scrollWidth<=el.clientWidth)break}
+    if(chips.length===1)more.remove();
+    if(el.scrollWidth>el.clientWidth)el.classList.add('fit'); /* the first tag alone is too long: let it shorten with an ellipsis */
+  });
+}
+let fitT;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fitTags,120)});
+document.fonts?.ready.then(()=>fitTags());
+const cxMeter=n=>`<span class="cxm" role="img" title="Complexity ${n} of 5" aria-label="Complexity ${n} of 5">${[1,2,3,4,5].map(i=>`<i${i<=n?' class="on"':''}></i>`).join('')}</span>`;
 function phaseOpts(cur){const ps=phaseList();if(cur&&!ps.includes(cur))ps.push(cur);return `<option value="">No phase</option>`+ps.map(p=>`<option value="${h(p)}" ${p===cur?'selected':''}>${h(p)}</option>`).join('')}
 function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span><span class="sub">${a.sent?'Closing email sent':`Closing email ${fmt(a.rem)}`}</span>`}
 function rowHTML(c){
   const d=due(c);
+  /* both columns get a second line when either needs one, so the number stays level with the title */
+  const two=c.tags.length||c.notes;
   return `<div class="lrow s-${rowState(c)}" data-href="case-${c.id}" data-cid="${c.id}">
-    <div class="c-num">${c.number?`<button class="num-copy mono" data-act="copy-num" data-v="${h(c.number)}" title="Click to copy">${h(c.number)}</button>`:'<span class="sub">—</span>'}</div>
+    <div class="c-num"><div class="c-id">${c.number?`<button class="num-copy mono" data-act="copy-num" data-v="${h(c.number)}" title="Click to copy">${h(c.number)}</button>`:'<span class="sub">—</span>'}${cxMeter(c.complexity)}</div>
+      ${two?`<div class="c-tags"${c.tags.length?` title="${h(c.tags.join(', '))}"`:''}>${c.tags.map(t=>`<span class="chip">${h(t)}</span>`).join('')}</div>`:''}</div>
     <div class="c-main"><a class="c-name" href="#case-${c.id}">${h(c.name)||'Untitled'}</a>
-      ${(c.tags.length||c.notes)?`<div class="c-meta">${c.tags.map(t=>`<span class="chip">${h(t)}</span>`).join('')}${c.notes?`<span class="c-notes" title="${h(c.notes)}">${h(c.notes)}</span>`:''}</div>`:''}</div>
+      ${two?`<span class="c-notes"${c.notes?` title="${h(c.notes)}"`:''}>${h(c.notes)}</span>`:''}</div>
     <div class="c-phase"><select class="cell${c.phase?'':' nophase'}" data-cell="phase" aria-label="Comm phase">${phaseOpts(c.phase)}</select></div>
     <div class="c-last">${lastCellHTML(c)}</div>
     <div class="c-next"><input type="date" class="cell" data-cell="commDate" value="${h(c.commDate)}" aria-label="Next comm date"><span class="due k-${d.k} lbl-next">${d.label}</span></div>
@@ -875,21 +930,11 @@ function renderClosed(list){
 }
 
 /* ---------- case ---------- */
-function renderCase(id){
-  cur=getCase(id);
-  if(!cur){app.innerHTML=`<div class="page"><a class="back" href="#home">← All cases</a><div class="empty">This case no longer exists.</div></div>`;return}
-  const c=cur;
-  app.innerHTML=`<div class="page">
-    <a class="back" href="#home">← All cases</a>
-    <header class="case-head">
-      <div><button class="num num-copy mono" id="ch-num" data-act="copy-num" title="Click to copy"></button><h1 id="ch-name"></h1></div>
-      <div class="ch-status" id="ch-status"></div>
-    </header>
-    <div class="close-bar" id="close-bar"></div>
-    <div class="case-grid">
-      <div class="col">
-        <section class="panel">
-          <h2>Case</h2>
+const cxButtons=n=>[1,2,3,4,5].map(i=>`<button type="button" role="radio" class="${i<=n?'on':''}" aria-checked="${i===n}" data-act="cx" data-n="${i}" title="${i}${i===1?' · easy':i===5?' · complex':''}" aria-label="Complexity ${i}"><i></i></button>`).join('');
+const PANEL_HTML={
+  case:c=>`<section class="panel">
+          <div class="p-head"><h2>Case</h2>
+            <div class="cx" role="radiogroup" aria-label="Complexity" title="Complexity · 1 easy, 5 complex"><span class="cx-lbl">Complexity</span>${cxButtons(c.complexity)}<span class="cx-n" id="cx-n">${c.complexity} of 5</span></div></div>
           <div class="form">
             <label class="f">Case number<input type="text" id="f-number" class="mono" data-f="number" value="${h(c.number)}"></label>
             <label class="f">Comm phase<select id="f-phase-sel"><option value="">No phase</option>${phaseList().map(p=>`<option value="${h(p)}" ${p===c.phase?'selected':''}>${h(p)}</option>`).join('')}<option value="__other">Other…</option></select>
@@ -901,53 +946,63 @@ function renderCase(id){
               <label class="f"><span>Auto-close <span class="opt">· optional</span></span><input type="date" id="f-auto" data-f="autoClose" value="${h(c.autoClose||'')}"></label>
             </div>
             <div class="wide ac-note" id="ac-note" hidden></div>
-            <div class="wide cx-row"><span class="cx-lbl">Complexity</span>
-              <div class="seg" role="radiogroup" aria-label="Complexity">${[1,2,3,4,5].map(n=>`<button type="button" role="radio" aria-checked="${c.complexity===n}" data-act="cx" data-n="${n}">${n}</button>`).join('')}</div>
-              <span class="sub">1 easy · 5 complex</span></div>
           </div>
-        </section>
-        <section class="panel">
+        </section>`,
+  notes:c=>`<section class="panel">
           <h2>Notes</h2>
           <textarea id="f-notes" data-f="notes" rows="4">${h(c.notes)}</textarea>
-        </section>
-        <section class="panel" id="vars-panel">
-          <div class="p-head"><h2>Variables</h2><span style="display:flex;gap:8px;align-items:center"><span class="sub" id="vars-count"></span><a href="#variables" class="btn ghost sm">Edit globals</a></span></div>
+        </section>`,
+  vars:()=>`<section class="panel" id="vars-panel">
+          <div class="p-head"><h2>Variables</h2><span style="display:flex;gap:8px;align-items:center"><span class="sub" id="vars-count"></span><a href="#variables" class="btn ghost sm">Edit defaults</a></span></div>
           <div class="vars" id="vars"></div>
+          <div class="var-add" id="var-pick-row"></div>
           <div class="var-add"><input type="text" id="var-new" class="mono" placeholder="New variable name" autocomplete="off" spellcheck="false" aria-label="New variable name"><button class="btn sm" data-act="add-var">Add</button></div>
-          <p class="hint">Any <code>{name}</code> in this case's commands or links is added here automatically. <code>{caseId}</code> and <code>{caseName}</code> always come from the case.</p>
-        </section>
-        <section class="panel">
+          <p class="hint">Any <code>{name}</code> in this case's commands or links is added here automatically. Pick a default variable from the list, or type a new name for one that's only on this case. <code>{caseId}</code> and <code>{caseName}</code> always come from the case.</p>
+        </section>`,
+  cmds:()=>`<section class="panel">
           <div class="p-head"><h2>Commands</h2><a href="#commands" class="btn ghost sm">Edit commands</a></div>
           <div id="cmd-body"></div>
-        </section>
-      </div>
-      <div class="col">
-        <section class="panel">
+        </section>`,
+  todo:()=>`<section class="panel">
           <div class="p-head"><h2>TODO <span class="td-n" id="td-count"></span></h2><button class="btn ghost sm" data-act="td-clear" id="td-clear"></button></div>
           <div class="inline-add"><input type="text" id="td-new" placeholder="Add a to-do and press Enter" autocomplete="off" aria-label="New to-do"><button class="btn sm" data-act="td-add">Add</button></div>
           <ul class="todos" id="todos"></ul>
           <p class="hint">Click a box to change its state: <code>[ ]</code> to do → <code>[-]</code> partly done → <code>[d]</code> done → <code>[x]</code> canceled. Shift-click goes back.</p>
-        </section>
-        <section class="panel">
+        </section>`,
+  log:()=>`<section class="panel">
           <h2>Log</h2>
           <div class="log-in"><input type="text" id="log-in" placeholder="Add a line and press Enter"><button class="btn sm" data-act="add-log">Add</button></div>
           <ul class="log" id="log"></ul>
-        </section>
-        <section class="panel">
+        </section>`,
+  tags:()=>`<section class="panel">
           <h2>Tags</h2>
           <div class="chips" id="tags"></div>
           <div class="inline-add"><input type="text" id="tag-in" placeholder="New tag" autocomplete="off"><button class="btn sm" data-act="add-tag">Add</button></div>
           <div class="sugg" id="tag-sugg"></div>
-        </section>
-        <section class="panel">
+        </section>`,
+  links:()=>`<section class="panel">
           <div class="p-head"><h2>Links</h2><a href="#links" class="btn ghost sm">Edit defaults</a></div>
           <ul class="links" id="links"></ul>
           <div class="link-add"><input type="text" id="link-label" placeholder="Label"><input type="text" id="link-url" class="mono" placeholder="https://…{caseId}" autocomplete="off" spellcheck="false" inputmode="url"><button class="btn sm" data-act="add-link">Add</button></div>
           <p class="hint">Links can use placeholders like <code>{caseId}</code> or <code>{accountId}</code>.</p>
-        </section>
-        <div class="row-end" id="del-zone"><span></span><button class="btn sm danger" data-act="del-case">Delete case</button></div>
-      </div>
+        </section>`
+};
+function renderCase(id){
+  cur=getCase(id);
+  if(!cur){app.innerHTML=`<div class="page"><a class="back" href="#home">← All cases</a><div class="empty">This case no longer exists.</div></div>`;return}
+  const c=cur;
+  const cols=state.settings.layout.filter(col=>col.length);
+  app.innerHTML=`<div class="page">
+    <a class="back" href="#home">← All cases</a>
+    <header class="case-head">
+      <div><button class="num num-copy mono" id="ch-num" data-act="copy-num" title="Click to copy"></button><h1 id="ch-name"></h1></div>
+      <div class="ch-status" id="ch-status"></div>
+    </header>
+    <div class="close-bar" id="close-bar"></div>
+    <div class="case-grid${cols.length<2?' one':''}">
+      ${cols.map(col=>`<div class="col">${col.map(k=>PANEL_HTML[k](c)).join('')}</div>`).join('')}
     </div>
+    <div class="row-end" id="del-zone"><span></span><button class="btn sm danger" data-act="del-case">Delete case</button></div>
   </div>`;
   ensureVars(c);updateHead();renderTodos();renderLog();renderTags();renderLinks();renderVars();renderCmdSection();
 }
@@ -1047,20 +1102,29 @@ function varTags(k){
   else if(used)t.push(`<span class="badge" title="${h([...used].join(', '))}">used</span>`);
   return t.join('');
 }
+/* order: this case's own variables, then default variables, then the globals it uses (read-only) */
 function renderVars(){
   ensureVars(cur);
   const used=usedKeys(cur);
-  const keys=[...state.defaults.vars.filter(v=>v.key).map(v=>v.key)];
-  Object.keys(cur.fields).forEach(k=>{if(!keys.includes(k))keys.push(k)});
+  const own=Object.keys(cur.fields).filter(k=>!BUILTIN[k]&&!defVar(k)&&!gVar(k));
+  const defs=caseDefKeys(cur,used);
   const gk=[...used.keys()].filter(k=>gVar(k));
-  const keysAll=keys.filter(k=>!gVar(k));
-  const gRows=gk.map(k=>varRow({k,value:gVar(k).value,placeholder:'empty, set it in Variables',tags:`<span class="badge g">global</span>`,canDelete:false,attr:'readonly data-gro="1"',del:''})).join('');
-  keys.length=0;keys.push(...keysAll);
-  document.getElementById('vars').innerHTML=(keys.length||gk.length)?gRows+keys.map(k=>varRow({
-    k,value:cur.fields[k]??'',placeholder:defVar(k)?.value||'empty',tags:varTags(k),
-    canDelete:!defVar(k)&&!used.has(k),attr:`data-fv="${h(k)}"`,del:'del-field'})).join(''):`<span class="muted-empty">No variables yet. They appear when a command or link uses one.</span>`;
+  const row=k=>varRow({k,value:cur.fields[k]??'',placeholder:defVar(k)?.value||'empty',tags:varTags(k),
+    canDelete:!used.has(k),attr:`data-fv="${h(k)}"`,del:defVar(k)?'del-dfield':'del-field'});
+  const groups=[
+    [null,own.map(row)],
+    ['Defaults',defs.map(row)],
+    ['Global',gk.map(k=>varRow({k,value:gVar(k).value,placeholder:'empty, set it in Variables',tags:`<span class="badge g">global</span>`,canDelete:false,attr:'readonly data-gro="1"',del:''}))]
+  ].filter(g=>g[1].length);
+  document.getElementById('vars').innerHTML=groups.length
+    ?groups.map(([label,rows],i)=>(i&&label?`<div class="vsep">${label}</div>`:'')+rows.join('')).join('')
+    :`<span class="muted-empty">No variables yet. Add a default one, type a new name, or use one in a command or link.</span>`;
+  const keys=[...own,...defs];
   const need=keys.filter(k=>used.has(k)&&caseVal(cur,k)==='').length;
   document.getElementById('vars-count').innerHTML=need?`<span class="state-miss">${need} needed</span>`:`${keys.length} set`;
+  /* default variables that aren't on this case yet, to add one by one */
+  const avail=state.defaults.vars.filter(v=>v.key&&!gVar(v.key)&&!defs.includes(v.key));
+  document.getElementById('var-pick-row').innerHTML=avail.length?`<select id="var-pick" aria-label="Add a default variable"><option value="">Add a default variable…</option>${avail.map(v=>`<option value="${h(v.key)}">${h(v.key)}${v.value?` = ${h(v.value)}`:''}</option>`).join('')}</select>`:'';
   markRows();
 }
 function markRows(){document.querySelectorAll('#vars .var').forEach(r=>{const k=r.dataset.row;if(gVar(k)){r.classList.toggle('need',!gVar(k).value);return}const used=usedKeys(cur).has(k);r.classList.toggle('need',used&&caseVal(cur,k)==='')})}
@@ -1068,7 +1132,7 @@ function updateVarTags(){
   if(!document.getElementById('vars'))return;
   document.querySelectorAll('#vars .var').forEach(r=>{if(!gVar(r.dataset.row))r.querySelector('.vt').innerHTML=varTags(r.dataset.row)});
   markRows();
-  const used=usedKeys(cur);const keys=[...document.querySelectorAll('#vars .var')].map(r=>r.dataset.row);
+  const used=usedKeys(cur);const keys=[...document.querySelectorAll('#vars .var')].map(r=>r.dataset.row).filter(k=>!gVar(k));
   const need=keys.filter(k=>used.has(k)&&caseVal(cur,k)==='').length;
   document.getElementById('vars-count').innerHTML=need?`<span class="state-miss">${need} needed</span>`:`${keys.length} set`;
 }
@@ -1142,7 +1206,9 @@ function dlinksHTML(l){
 function renderBank(){
   const v=state.defaults.vars;
   document.getElementById('gvars').innerHTML=state.globals.length?state.globals.map(x=>varRow({k:x.key,value:x.value,placeholder:'empty',tags:'',canDelete:true,attr:`data-gv="${h(x.key)}"`,del:'del-gvar'})).join(''):`<span class="muted-empty">No global variables yet.</span>`;
-  document.getElementById('dvars').innerHTML=v.filter(x=>x.key).length?v.filter(x=>x.key).map(x=>varRow({k:x.key,value:x.value,placeholder:'empty, fill per case',tags:'',canDelete:true,attr:`data-dv="${h(x.key)}"`,del:'del-dvar'})).join(''):`<span class="muted-empty">No default variables.</span>`;
+  document.getElementById('dvars').innerHTML=v.filter(x=>x.key).length?v.filter(x=>x.key).map(x=>varRow({k:x.key,value:x.value,placeholder:'empty, fill per case',
+    tags:`<label class="vauto" title="Put this variable on every case"><input type="checkbox" data-dva="${h(x.key)}" ${x.auto?'checked':''}>Every case</label>`,
+    canDelete:true,attr:`data-dv="${h(x.key)}"`,del:'del-dvar'})).join(''):`<span class="muted-empty">No default variables.</span>`;
 }
 function renderCmdList(sel){
   const el=document.getElementById('cmd-list');
@@ -1227,12 +1293,87 @@ function renderVariables(){
       <div class="p-head"><h2>Default variables</h2><span class="sub">${state.defaults.vars.filter(v=>v.key).length} saved</span></div>
       <div class="vars" id="dvars"></div>
       <div class="var-add"><input type="text" id="dvar-new" class="mono" placeholder="New variable name" autocomplete="off" spellcheck="false" aria-label="New default variable name"><button class="btn sm" data-act="add-dvar">Add</button></div>
-      <p class="hint">Every case gets its own copy. Leave the value empty to fill it per case, or set a starting value that each case can change.</p>
+      <p class="hint">Add these to a case one by one from its Variables panel, or tick <b>Every case</b> to put one on all cases (it can still be removed from a single case). A case also gets one automatically when its commands or links use it. Leave the value empty to fill it per case, or set a starting value that each case can change.</p>
     </section>
   </div>
   </div>`;
   renderBank();
 }
+
+/* ---------- settings ---------- */
+const GRIP='<svg viewBox="0 0 12 16" width="10" height="14" aria-hidden="true"><g fill="currentColor"><circle cx="3.5" cy="3" r="1.3"/><circle cx="8.5" cy="3" r="1.3"/><circle cx="3.5" cy="8" r="1.3"/><circle cx="8.5" cy="8" r="1.3"/><circle cx="3.5" cy="13" r="1.3"/><circle cx="8.5" cy="13" r="1.3"/></g></svg>';
+const ARROW={up:'M8 12.5v-9M4 7.5l4-4 4 4',down:'M8 3.5v9M4 8.5l4 4 4-4',left:'M12.5 8h-9M7.5 4l-4 4 4 4',right:'M3.5 8h9M8.5 4l4 4-4 4'};
+const arrowSvg=d=>`<svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="${ARROW[d]}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+function renderSettings(){
+  cur=null;
+  app.innerHTML=`<div class="page">
+    <div class="toolbar"><h1>Settings</h1></div>
+    <section class="panel">
+      <div class="p-head"><h2>Case page layout</h2><button class="btn ghost sm" data-act="lay-reset" id="lay-reset">Reset to default</button></div>
+      <p class="hint">Drag the panels to change their order, or move them to the other column. The arrow buttons do the same from the keyboard. On narrow screens the case page shows one column: the left one first, then the right.</p>
+      <div class="lay" id="lay"></div>
+    </section>
+    <div class="set-grid">
+      <section class="panel">
+        <h2>Display</h2>
+        <label class="check" for="set-hints"><input type="checkbox" id="set-hints" ${hintsOn()?'checked':''}><span><b>Show hints</b><span>The short explanations under panels and pages. Saved in this browser, so each device keeps its own choice.</span></span></label>
+      </section>
+      <section class="panel">
+        <h2>Session</h2>
+        <p class="hint">Sign-ins last 24 hours. Signing out waits for pending changes to save.</p>
+        <div><button class="btn sm" data-act="logout">Sign out</button></div>
+      </section>
+      <section class="panel">
+        <h2>Back up</h2>
+        <p class="hint">Everything is saved on the Comm Desk server. Copy the data as JSON to keep an extra backup or move it elsewhere.</p>
+        <div><button class="btn sm" data-act="export">Copy data as JSON</button></div>
+      </section>
+      <section class="panel">
+        <h2>Restore</h2>
+        <textarea id="import-box" placeholder="Paste JSON from a backup" spellcheck="false"></textarea>
+        <div class="inline-add" id="import-actions"><button class="btn sm" data-act="import">Replace data with this</button></div>
+        <p class="hint">The server snapshots the current data first, so this can be undone with <code>main.py restore</code>.</p>
+      </section>
+    </div>
+  </div>`;
+  renderLayout();
+}
+function renderLayout(focus){
+  const lay=state.settings.layout,names=['Left column','Right column'];
+  document.getElementById('lay').innerHTML=lay.map((col,ci)=>`<div class="lay-col" data-col="${ci}"><div class="lay-h">${names[ci]}</div><ul class="lay-list">${col.map((k,i)=>`<li class="lay-item" draggable="true" data-p="${k}"><span class="grip">${GRIP}</span><span class="lay-name">${PANELS[k]}</span><span class="lay-btns">
+      <button class="ib" data-act="lay-mv" data-p="${k}" data-d="up" ${i===0?'disabled':''} title="Move up" aria-label="Move ${PANELS[k]} up">${arrowSvg('up')}</button>
+      <button class="ib" data-act="lay-mv" data-p="${k}" data-d="down" ${i===col.length-1?'disabled':''} title="Move down" aria-label="Move ${PANELS[k]} down">${arrowSvg('down')}</button>
+      <button class="ib" data-act="lay-mv" data-p="${k}" data-d="${ci?'left':'right'}" title="Move to the ${ci?'left':'right'} column" aria-label="Move ${PANELS[k]} to the ${ci?'left':'right'} column">${arrowSvg(ci?'left':'right')}</button>
+    </span></li>`).join('')}</ul></div>`).join('');
+  document.getElementById('lay-reset').disabled=JSON.stringify(lay)===JSON.stringify(LAYOUT0);
+  if(focus){const b=document.querySelector(`[data-act="lay-mv"][data-p="${focus.p}"][data-d="${focus.d}"]`);(b&&!b.disabled?b:document.querySelector(`.lay-item[data-p="${focus.p}"] .ib:not(:disabled)`))?.focus()}
+}
+function setLayout(l){const n=normLayout(l);if(JSON.stringify(n)===JSON.stringify(state.settings.layout))return false;state.settings.layout=n;save();return true}
+function moveLayout(p,d){
+  const l=state.settings.layout.map(c=>[...c]),ci=l.findIndex(c=>c.includes(p)),i=l[ci].indexOf(p);
+  if(d==='up'&&i>0)[l[ci][i-1],l[ci][i]]=[l[ci][i],l[ci][i-1]];
+  else if(d==='down'&&i<l[ci].length-1)[l[ci][i+1],l[ci][i]]=[l[ci][i],l[ci][i+1]];
+  else if(d==='left'||d==='right'){l[ci].splice(i,1);l[1-ci].splice(Math.min(i,l[1-ci].length),0,p)}
+  setLayout(l);renderLayout({p,d:d==='left'?'right':d==='right'?'left':d});
+}
+/* drag and drop: the dragged item moves through the lists live; the order is read back when it's dropped */
+let drag=null;
+app.addEventListener('dragstart',e=>{const li=e.target.closest?.('.lay-item');if(!li)return;drag=li;e.dataTransfer.effectAllowed='move';try{e.dataTransfer.setData('text/plain',PANELS[li.dataset.p])}catch(err){}requestAnimationFrame(()=>li.classList.add('dragging'))});
+app.addEventListener('dragover',e=>{
+  if(!drag)return;const col=e.target.closest('.lay-col');if(!col)return;
+  e.preventDefault();e.dataTransfer.dropEffect='move';
+  document.querySelectorAll('.lay-col.over').forEach(x=>x!==col&&x.classList.remove('over'));col.classList.add('over');
+  const list=col.querySelector('.lay-list');
+  const before=[...list.querySelectorAll('.lay-item:not(.dragging)')].find(el=>{const r=el.getBoundingClientRect();return e.clientY<r.top+r.height/2});
+  if(before){if(before.previousElementSibling!==drag)list.insertBefore(drag,before)}else if(list.lastElementChild!==drag)list.appendChild(drag);
+});
+app.addEventListener('drop',e=>{if(drag)e.preventDefault()});
+app.addEventListener('dragend',()=>{
+  if(!drag)return;drag=null;
+  const l=[...document.querySelectorAll('#lay .lay-list')].map(ul=>[...ul.children].map(li=>li.dataset.p));
+  if(setLayout(l))toast('Layout saved');
+  renderLayout();
+});
 
 /* ---------- todo ---------- */
 const TD_NEXT={' ':'-','-':'d','d':'x','x':' '},TD_PREV={' ':'x','-':' ','d':'-','x':'d'};
@@ -1256,12 +1397,12 @@ function route(){
   tickFU();
   refreshLists();
   const onCmds=r==='commands'||r.startsWith('command-');
-  const sec=onCmds?'cmds':r==='variables'?'vars':r==='links'?'links':'cases';
+  const sec=onCmds?'cmds':r==='variables'?'vars':r==='links'?'links':r==='settings'?'settings':'cases';
   document.querySelectorAll('[data-nav]').forEach(a=>a.dataset.nav===sec?a.setAttribute('aria-current','page'):a.removeAttribute('aria-current'));
-  document.getElementById('drawer').hidden=true;
   if(r.startsWith('case-'))renderCase(r.slice(5));
   else if(onCmds)renderCommands(r.startsWith('command-')?r.slice(8):null);
   else if(r==='variables')renderVariables();
+  else if(r==='settings')renderSettings();
   else if(r==='links')renderLinksPage();
   else if(r==='history')renderHistory();
   else renderHome();
@@ -1275,8 +1416,8 @@ function addLog(){const i=document.getElementById('log-in');const v=i.value.trim
 function addTag(){const i=document.getElementById('tag-in');const v=i.value.trim();if(!v)return;if(!cur.tags.includes(v))cur.tags.push(v);i.value='';save();renderTags();refreshLists();i.focus()}
 function addLink(){const l=document.getElementById('link-label'),u=document.getElementById('link-url');let url=u.value.trim();if(!url)return;if(!/^[a-z]+:\/\//i.test(url))url='https://'+url;cur.links.push({label:l.value.trim(),url});l.value='';u.value='';ensureVars(cur);save();renderLinks();renderVars();l.focus()}
 function cleanKey(v){return v.trim().replace(/^\{|\}$/g,'').replace(/[^\w.\-]/g,'_')}
-function addVar(){const i=document.getElementById('var-new');const k=cleanKey(i.value);if(!k)return;if(BUILTIN[k]){toast(`${k} comes from the case itself`);return}if(gVar(k)){toast(`${k} is a global variable`);return}if(!(k in cur.fields))cur.fields[k]='';i.value='';save();renderVars();refreshCmds();document.querySelector(`#vars .var[data-row="${CSS.escape(k)}"] input`)?.focus()}
-function addDVar(){const i=document.getElementById('dvar-new');const k=cleanKey(i.value);if(!k)return;if(BUILTIN[k]){toast(`${k} comes from the case itself`);return}if(gVar(k)){toast(`${k} is already a global variable`);return}if(!defVar(k))state.defaults.vars.push({key:k,value:''});i.value='';save();renderBank();document.querySelector(`#dvars .var[data-row="${CSS.escape(k)}"] input`)?.focus()}
+function addVar(){const i=document.getElementById('var-new');const k=cleanKey(i.value);if(!k)return;if(BUILTIN[k]){toast(`${k} comes from the case itself`);return}if(gVar(k)){toast(`${k} is a global variable`);return}if(defVar(k)){addDefVar(cur,k);toast(`Added the default variable ${k}`)}else if(!(k in cur.fields))cur.fields[k]='';i.value='';save();renderVars();refreshCmds();document.querySelector(`#vars .var[data-row="${CSS.escape(k)}"] input`)?.focus()}
+function addDVar(){const i=document.getElementById('dvar-new');const k=cleanKey(i.value);if(!k)return;if(BUILTIN[k]){toast(`${k} comes from the case itself`);return}if(gVar(k)){toast(`${k} is already a global variable`);return}if(!defVar(k))state.defaults.vars.push({key:k,value:'',auto:false});i.value='';save();renderBank();document.querySelector(`#dvars .var[data-row="${CSS.escape(k)}"] input`)?.focus()}
 function addGVar(){const i=document.getElementById('gvar-new');const k=cleanKey(i.value);if(!k)return;if(BUILTIN[k]){toast(`${k} comes from the case itself`);return}if(!gVar(k))state.globals.push({key:k,value:''});i.value='';save();renderBank();document.querySelector(`#gvars .var[data-row="${CSS.escape(k)}"] input`)?.focus()}
 function copyText(text,el){
   const done=()=>toast('Copied');
@@ -1303,6 +1444,9 @@ app.addEventListener('input',e=>{
 });
 app.addEventListener('change',e=>{
   const t=e.target;
+  if(t.id==='set-hints'){setHints(t.checked);toast(t.checked?'Hints shown':'Hints hidden');return}
+  if(t.dataset.dva!==undefined){const x=defVar(t.dataset.dva);if(x){x.auto=t.checked;save();toast(x.auto?`${x.key} added to every case`:`${x.key} is no longer on every case`)}return}
+  if(t.id==='var-pick'&&t.value&&cur){const k=t.value;addDefVar(cur,k);save();renderVars();refreshCmds();document.querySelector(`#vars .var[data-row="${CSS.escape(k)}"] input`)?.focus();return}
   if(t.id==='f-last'&&cur&&t.value){const before=cur.autoClose;lastCommChanged(cur);if(fuOnLastComm(cur))toast(`Follow up #${cur.fuCount} counted`);save();syncForm();const fa=document.getElementById('f-auto');if(fa)fa.value=cur.autoClose||'';updateHead();renderLog();if(before&&!cur.autoClose)toast('Auto-close cleared. Pick the next comm phase');return}
   if(t.id==='f-auto'&&cur){if(cur.autoClose&&/^\d{4}-\d{2}-\d{2}$/.test(cur.autoClose)){applyAuto(cur);autoLog(cur,`Auto-close set for ${fmtW(cur.autoClose)}`);save();syncForm();updateHead();renderLog();toast(`Phase set to ${cur.phase}, next comm ${fmt(cur.commDate)}`)}else{save();updateHead()}return}
   if(t.dataset.cell&&!cur){const row=t.closest('.lrow');const c=getCase(row.dataset.cid);if(!c)return;c[t.dataset.cell]=t.value;delete c.sample;if(t.dataset.cell==='lastComm'&&t.value){const before=c.autoClose;lastCommChanged(c);const fu=fuOnLastComm(c);row.querySelector('[data-cell=phase]').value=c.phase;row.querySelector('[data-cell=commDate]').value=c.commDate||'';if(before&&!c.autoClose)toast('Auto-close cleared. Pick the next comm phase');else if(fu)toast(`Follow up #${c.fuCount} counted`)}save();refreshRow(row,c);ui.dirty=true;if(t.tagName==='SELECT')resortSoon();return}
@@ -1332,7 +1476,8 @@ document.addEventListener('click',e=>{
   if(!b){const row=e.target.closest('.lrow[data-href]');if(row&&!e.target.closest('input,select,button,a,label'))location.hash=row.dataset.href;return}
   const a=b.dataset.act,i=+b.dataset.i;
   switch(a){
-    case 'toggle-hints':{const on=document.documentElement.dataset.hints==='off';applyHints(on);try{localStorage.setItem(HINTS,on?'on':'off')}catch(e){}toast(on?'Hints shown':'Hints hidden');break}
+    case 'lay-mv':if(!b.disabled)moveLayout(b.dataset.p,b.dataset.d);break;
+    case 'lay-reset':setLayout(LAYOUT0);renderLayout();toast('Layout reset');break;
     case 'td-add':addTodo();break;
     case 'td-cycle':{const x=tdList()[i];if(!x)break;x.s=(e.shiftKey?TD_PREV:TD_NEXT)[x.s]||' ';save();renderTodos(i);break}
     case 'td-del':tdList().splice(i,1);save();renderTodos();break;
@@ -1354,10 +1499,11 @@ document.addEventListener('click',e=>{
     case 'del-link':cur.links.splice(+b.dataset.k,1);save();renderLinks();renderVars();break;
     case 'add-var':addVar();break;
     case 'del-field':delete cur.fields[b.dataset.k];save();renderVars();refreshCmds();break;
+    case 'del-dfield':removeDefVar(cur,b.dataset.k);save();renderVars();refreshCmds();toast(`${b.dataset.k} removed from this case`);break;
     case 'copy-var':{const k=b.dataset.k;const v=gVar(k)&&(cur||b.closest('#gvars'))?gVar(k).value:cur?caseVal(cur,k):(defVar(k)?.value||'');if(!v){toast(`${k} is empty`);break}copyText(v,b.closest('.var').querySelector('input'));break}
     case 'goto-var':{const r=document.querySelector(`#vars .var[data-row="${CSS.escape(b.dataset.k)}"] input`);if(r){r.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});r.focus({preventScroll:true})}break}
     case 'add-dvar':addDVar();break;
-    case 'del-dvar':state.defaults.vars=state.defaults.vars.filter(v=>v.key!==b.dataset.k);save();renderBank();break;
+    case 'del-dvar':{const k=b.dataset.k;state.defaults.vars=state.defaults.vars.filter(v=>v.key!==k);state.cases.forEach(c=>c.hiddenVars=c.hiddenVars.filter(x=>x!==k));save();renderBank();break}
     case 'add-gvar':addGVar();break;
     case 'del-gvar':state.globals=state.globals.filter(v=>v.key!==b.dataset.k);save();renderBank();break;
     case 'unpin':{const id=b.dataset.id;cur.commands=cur.commands.filter(x=>x!==id);if(getCmd(id)?.auto&&!cur.hiddenCmds.includes(id))cur.hiddenCmds.push(id);save();renderCmdSection();renderVars();break}
@@ -1366,7 +1512,7 @@ document.addEventListener('click',e=>{
     case 'del-cancel':document.getElementById('del-zone').innerHTML=`<span></span><button class="btn sm danger" data-act="del-case">Delete case</button>`;break;
     case 'del-case-yes':state.cases=state.cases.filter(c=>c!==cur);save();location.hash='home';toast('Case deleted');break;
     case 'copy-num':if(b.dataset.v)copyText(b.dataset.v,b);break;
-    case 'cx':cur.complexity=+b.dataset.n;save();document.querySelectorAll('.seg [data-act=cx]').forEach(x=>x.setAttribute('aria-checked',x===b));break;
+    case 'cx':{const n=+b.dataset.n;cur.complexity=n;save();document.querySelectorAll('.cx [data-act=cx]').forEach(x=>{x.setAttribute('aria-checked',x===b);x.classList.toggle('on',+x.dataset.n<=n)});document.getElementById('cx-n').textContent=`${n} of 5`;break}
     case 'fu-sent':{
       if(cur){markFU(cur);save();syncForm();updateHead();renderLog();toast(`Follow up #${cur.fuCount} sent`)}
       else{const c=getCase(b.dataset.id);if(!c)break;markFU(c);save();const row=b.closest('.lrow');row.querySelector('[data-cell=lastComm]').value=c.lastComm;row.querySelector('[data-cell=phase]').value=c.phase;row.querySelector('[data-cell=commDate]').value='';refreshRow(row,c);ui.dirty=true;resortSoon();toast(`Follow up #${c.fuCount} sent`)}
@@ -1382,7 +1528,6 @@ document.addEventListener('click',e=>{
     case 'del-cmd':document.getElementById('kdel').innerHTML=`<span class="sub">This also removes it from every case.</span><span class="inline-add"><button class="btn sm" data-act="cmd-keep">Keep</button><button class="btn sm danger solid" data-act="del-cmd-yes" data-id="${b.dataset.id}">Delete</button></span>`;break;
     case 'cmd-keep':route();break;
     case 'del-cmd-yes':{const id=b.dataset.id;state.commands=state.commands.filter(k=>k.id!==id);state.cases.forEach(c=>c.commands=c.commands.filter(x=>x!==id));save();location.hash='commands';route();toast('Command deleted');break}
-    case 'toggle-data':{const d=document.getElementById('drawer');d.hidden=!d.hidden;if(!d.hidden)window.scrollTo(0,0);break}
     case 'export':copyText(JSON.stringify(state,null,2),document.getElementById('import-box'));break;
     case 'import':document.getElementById('import-actions').innerHTML=`<button class="btn sm" data-act="import-no">Cancel</button><button class="btn sm danger solid" data-act="import-yes">Replace all data</button>`;break;
     case 'import-no':document.getElementById('import-actions').innerHTML=`<button class="btn sm" data-act="import">Replace data with this</button>`;break;
