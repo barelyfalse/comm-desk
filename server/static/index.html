@@ -113,10 +113,7 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .c-tags .chip{flex:none;display:block;line-height:16px;white-space:nowrap}
 .c-tags.fit .chip:first-child{flex:0 1 auto;min-width:0;overflow:hidden;text-overflow:ellipsis}
 .c-tags .chip.more{background:transparent;box-shadow:inset 0 0 0 1px var(--line);color:var(--muted)}
-.cxm{display:inline-flex;align-items:flex-end;gap:2px;height:10px;flex:none}
-.cxm i{width:3px;border-radius:1px;background:var(--line)}
-.cxm i:nth-child(1){height:4px}.cxm i:nth-child(2){height:5.5px}.cxm i:nth-child(3){height:7px}.cxm i:nth-child(4){height:8.5px}.cxm i:nth-child(5){height:10px}
-.cxm i.on{background:var(--faint)}
+.cxm{font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--faint);flex:none}
 .num-copy{border:0;background:none;padding:2px 3px;margin:-2px -3px;border-radius:4px;cursor:copy;color:inherit;text-align:left;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .num-copy:hover{background:var(--accent-soft);color:var(--mark-fg)}
 .num-copy:disabled{cursor:default;background:none;color:inherit}
@@ -432,17 +429,15 @@ input[type=text].td-text:focus{border-color:var(--accent);background:var(--surfa
 .ac-note.k-nophase{background:var(--over-soft);border-color:color-mix(in srgb,var(--over) 40%,transparent);color:var(--fg)}
 select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);background:var(--over-soft);color:var(--over)}
 .lrow select.cell.nophase{border-color:color-mix(in srgb,var(--over) 45%,transparent);background:var(--over-soft);color:var(--over)}
-/* complexity: five rising bars in the Case panel header (the ledger shows a small read-only copy, .cxm) */
+/* complexity: five dots in the Case panel header (the ledger shows it as a quiet "C3", .cxm) */
 .cx{display:flex;align-items:center}
 .cx-lbl{font-size:12px;color:var(--muted);font-weight:500;margin-right:6px}
-.cx button{border:0;background:none;padding:0;width:12px;height:24px;display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;cursor:pointer;border-radius:3px}
-.cx button i{display:block;width:6px;border-radius:2px;background:var(--line-strong)}
-.cx button:nth-of-type(1) i{height:6px}.cx button:nth-of-type(2) i{height:9px}.cx button:nth-of-type(3) i{height:12px}.cx button:nth-of-type(4) i{height:15px}.cx button:nth-of-type(5) i{height:18px}
+.cx button{border:0;background:none;padding:0;width:16px;height:24px;display:grid;place-items:center;cursor:pointer;border-radius:50%}
+.cx button i{display:block;width:8px;height:8px;border-radius:50%;background:var(--line-strong)}
 .cx button.on i{background:var(--accent)}
 .cx button:hover i{background:var(--muted)}
 .cx button.on:hover i{background:color-mix(in srgb,var(--accent) 75%,var(--fg))}
-.cx-n{font-size:12px;color:var(--faint);margin-left:6px;font-variant-numeric:tabular-nums;min-width:36px}
-@media (max-width:760px){.cx button{width:22px;height:36px;padding-bottom:8px}}
+@media (max-width:760px){.cx button{width:26px;height:36px}.cx button i{width:10px;height:10px}}
 
 /* settings */
 .set-link{display:inline-flex;align-items:center;gap:6px;text-decoration:none;color:var(--muted)}
@@ -892,7 +887,7 @@ function fitTags(){
 }
 let fitT;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fitTags,120)});
 document.fonts?.ready.then(()=>fitTags());
-const cxMeter=n=>`<span class="cxm" role="img" title="Complexity ${n} of 5" aria-label="Complexity ${n} of 5">${[1,2,3,4,5].map(i=>`<i${i<=n?' class="on"':''}></i>`).join('')}</span>`;
+const cxMeter=n=>`<span class="cxm" title="Complexity ${n} of 5" aria-label="Complexity ${n} of 5">C${n}</span>`;
 function phaseOpts(cur){const ps=phaseList();if(cur&&!ps.includes(cur))ps.push(cur);return `<option value="">No phase</option>`+ps.map(p=>`<option value="${h(p)}" ${p===cur?'selected':''}>${h(p)}</option>`).join('')}
 function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span><span class="sub">${a.sent?'Closing email sent':`Closing email ${fmt(a.rem)}`}</span>`}
 function rowHTML(c){
@@ -938,7 +933,7 @@ const cxButtons=n=>[1,2,3,4,5].map(i=>`<button type="button" role="radio" class=
 const PANEL_HTML={
   case:c=>`<section class="panel">
           <div class="p-head"><h2>Case</h2>
-            <div class="cx" role="radiogroup" aria-label="Complexity" title="Complexity · 1 easy, 5 complex"><span class="cx-lbl">Complexity</span>${cxButtons(c.complexity)}<span class="cx-n" id="cx-n">${c.complexity} of 5</span></div></div>
+            <div class="cx" role="radiogroup" aria-label="Complexity" title="Complexity · 1 easy, 5 complex"><span class="cx-lbl">Complexity</span>${cxButtons(c.complexity)}</div></div>
           <div class="form">
             <label class="f">Case number<input type="text" id="f-number" class="mono" data-f="number" value="${h(c.number)}"></label>
             <label class="f">Comm phase<select id="f-phase-sel"><option value="">No phase</option>${phaseList().map(p=>`<option value="${h(p)}" ${p===c.phase?'selected':''}>${h(p)}</option>`).join('')}<option value="__other">Other…</option></select>
@@ -1526,7 +1521,7 @@ document.addEventListener('click',e=>{
     case 'del-cancel':document.getElementById('del-zone').innerHTML=`<span></span><button class="btn sm danger" data-act="del-case">Delete case</button>`;break;
     case 'del-case-yes':state.cases=state.cases.filter(c=>c!==cur);save();location.hash='home';toast('Case deleted');break;
     case 'copy-num':if(b.dataset.v)copyText(b.dataset.v,b);break;
-    case 'cx':{const n=+b.dataset.n;cur.complexity=n;save();document.querySelectorAll('.cx [data-act=cx]').forEach(x=>{x.setAttribute('aria-checked',x===b);x.classList.toggle('on',+x.dataset.n<=n)});document.getElementById('cx-n').textContent=`${n} of 5`;break}
+    case 'cx':{const n=+b.dataset.n;cur.complexity=n;save();document.querySelectorAll('.cx [data-act=cx]').forEach(x=>{x.setAttribute('aria-checked',x===b);x.classList.toggle('on',+x.dataset.n<=n)});break}
     case 'fu-sent':{
       if(cur){markFU(cur);save();syncForm();updateHead();renderLog();toast(`Follow up #${cur.fuCount} sent`)}
       else{const c=getCase(b.dataset.id);if(!c)break;markFU(c);save();const row=b.closest('.lrow');row.querySelector('[data-cell=lastComm]').value=c.lastComm;row.querySelector('[data-cell=phase]').value=c.phase;row.querySelector('[data-cell=commDate]').value='';refreshRow(row,c);ui.dirty=true;resortSoon();toast(`Follow up #${c.fuCount} sent`)}
