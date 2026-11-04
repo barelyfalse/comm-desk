@@ -143,6 +143,14 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .cell:focus{border-color:var(--accent);background:var(--surface)}
 select.cell{font-weight:500}
 .c-last .sub,.c-next .due{padding-left:7px;font-size:11.5px}
+.dcell{position:relative;display:block}
+.dtxt{display:block;padding:4px 7px;border:1px solid transparent;border-radius:5px;font-size:12.5px;font-weight:500;color:var(--fg);white-space:nowrap}
+.dtxt.empty{color:var(--faint);font-weight:400}
+.lrow:hover .dtxt{border-color:var(--line);background:var(--surface)}
+.dcell input.cell{position:absolute;inset:0;width:100%;height:100%;padding:4px 6px;opacity:0;cursor:pointer}
+.dcell:focus-within input.cell{opacity:1;border-color:var(--accent);background:var(--surface)}
+.dcell:focus-within .dtxt{visibility:hidden}
+.dcell.fu-due .dtxt{background:var(--tmrw-soft);border-color:color-mix(in srgb,var(--tmrw) 45%,transparent)}
 .c-auto{padding-left:2px}
 .ac{font-size:12.5px;font-weight:600;white-space:nowrap}
 .ac.k-set,.ac.k-sent{color:var(--later);font-weight:500}
@@ -915,16 +923,19 @@ function rowHTML(c){
       ${two?`<span class="c-notes"${c.notes?` title="${h(c.notes)}"`:''}>${h(c.notes)}</span>`:''}</div>
     <div class="c-phase"><select class="cell${c.phase?'':' nophase'}" data-cell="phase" aria-label="Comm phase">${phaseOpts(c.phase)}</select></div>
     <div class="c-last">${lastCellHTML(c)}</div>
-    <div class="c-next"><input type="date" class="cell" data-cell="commDate" value="${h(c.commDate)}" aria-label="Next comm date"><span class="due k-${d.k} lbl-next">${d.label}</span></div>
+    <div class="c-next">${dateCell('commDate',c.commDate,'Next comm date')}<span class="due k-${d.k} lbl-next">${d.label}</span></div>
     <div class="c-auto">${acHTML(c)}</div>
   </div>`;
 }
 function fuLbl(c){const f=fuInfo(c);if(!f)return '';return `<span class="fu k-${f.k}">${f.k==='due'?(f.n?'FU due':'1st FU'):'FU optional'}</span><button type="button" class="mini" data-act="fu-sent" data-id="${c.id}">Sent</button>`}
-function lastCellHTML(c){const f=fuInfo(c);return `<input type="date" class="cell${f?' fu-'+f.k:''}" data-cell="lastComm" value="${h(c.lastComm)}" aria-label="Last comm date"><span class="sub lbl-last"><span>${ago(c.lastComm)}</span>${fuLbl(c)}</span>`}
+/* ledger dates read as text ("Thu, Oct 29"); the date input sits invisibly on top and shows itself while focused */
+function dateCell(k,v,label,cls=''){return `<span class="dcell${cls}"><span class="dtxt${v?'':' empty'}" aria-hidden="true">${v?fmtW(v):'Set date'}</span><input type="date" class="cell" data-cell="${k}" value="${h(v)}" aria-label="${label}"></span>`}
+function dateTxt(el,v){const t=el.querySelector('.dtxt');t.textContent=v?fmtW(v):'Set date';t.classList.toggle('empty',!v)}
+function lastCellHTML(c){const f=fuInfo(c);return `${dateCell('lastComm',c.lastComm,'Last comm date',f?' fu-'+f.k:'')}<span class="sub lbl-last"><span>${ago(c.lastComm)}</span>${fuLbl(c)}</span>`}
 function refreshRow(el,c){
   el.className=`lrow s-${rowState(c)}`;
   const d=due(c);const n=el.querySelector('.lbl-next');n.className=`due k-${d.k} lbl-next`;n.textContent=d.label;
-  {const f=fuInfo(c);const i=el.querySelector('[data-cell=lastComm]');i.classList.remove('fu-due','fu-optional');if(f)i.classList.add('fu-'+f.k);el.querySelector('.lbl-last').innerHTML=`<span>${ago(c.lastComm)}</span>${fuLbl(c)}`}
+  {const f=fuInfo(c);const i=el.querySelector('[data-cell=lastComm]').parentElement;i.classList.remove('fu-due','fu-optional');if(f)i.classList.add('fu-'+f.k);dateTxt(i,c.lastComm);dateTxt(el.querySelector('[data-cell=commDate]').parentElement,c.commDate);el.querySelector('.lbl-last').innerHTML=`<span>${ago(c.lastComm)}</span>${fuLbl(c)}`}
   el.querySelector('.c-auto').innerHTML=acHTML(c);
   el.querySelector('[data-cell=phase]').classList.toggle('nophase',!c.phase);
 }
@@ -1496,6 +1507,7 @@ app.addEventListener('keydown',e=>{
 });
 document.addEventListener('click',e=>{
   const b=e.target.closest('[data-act]');
+  if(e.target.matches('.dcell input')){try{e.target.showPicker()}catch{}return}
   if(!b){const row=e.target.closest('.lrow[data-href]');if(row&&!e.target.closest('input,select,button,a,label'))location.hash=row.dataset.href;return}
   const a=b.dataset.act,i=+b.dataset.i;
   switch(a){
