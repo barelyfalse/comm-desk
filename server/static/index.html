@@ -19,6 +19,9 @@
   --fg:#151a24; --muted:#5b6476; --faint:#8a92a3;
   --accent:#2b4fd8; --accent-fg:#ffffff; --accent-soft:#e7ecfd;
   --over:#c33a2a; --over-soft:#fbe8e5; --today:#c0660d; --today-soft:#fdeedd; --tmrw:#8f7400; --tmrw-soft:#faf3d2; --later:#5b6476;
+  /* due-state palette for the ledger: red overdue, yellow today, green tomorrow, light blue 2+ days */
+  --due-over:#d32f2f; --due-today:#d9a400; --due-tmrw:#2e9d4f; --due-later:#4a9ee0;
+  --due-over-fg:#c62828; --due-today-fg:#9c7400; --due-tmrw-fg:#22803f; --due-later-fg:#2a7fc4;
   --code-bg:#f2f4f9; --mark:#dfe7ff; --mark-fg:#1c3aa8; --td-part:#1f7ab8; --td-cancel:#9a2b20;
   --font-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
@@ -29,12 +32,16 @@
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
   --over:#d8958d; --over-soft:#2a2023; --today:#d4a777; --today-soft:#29231d; --tmrw:#c8b778; --tmrw-soft:#26251d; --later:#9aa2b3;
+  --due-over:#f06a62; --due-today:#f0c43c; --due-tmrw:#5cc87c; --due-later:#7cc0f2;
+  --due-over-fg:var(--due-over); --due-today-fg:var(--due-today); --due-tmrw-fg:var(--due-tmrw); --due-later-fg:var(--due-later);
   --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#a8706a; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#0e1218; --surface:#151a23; --surface-2:#1a2030; --line:#252c3a; --line-strong:#343d4f;
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
   --over:#d8958d; --over-soft:#2a2023; --today:#d4a777; --today-soft:#29231d; --tmrw:#c8b778; --tmrw-soft:#26251d; --later:#9aa2b3;
+  --due-over:#f06a62; --due-today:#f0c43c; --due-tmrw:#5cc87c; --due-later:#7cc0f2;
+  --due-over-fg:var(--due-over); --due-today-fg:var(--due-today); --due-tmrw-fg:var(--due-tmrw); --due-later-fg:var(--due-later);
   --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#a8706a; color-scheme:dark}
 
 *{box-sizing:border-box}
@@ -101,9 +108,13 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
   gap:12px;align-items:center;padding:10px 14px 10px 11px;border-left:3px solid transparent;min-width:1046px;color:inherit}
 .lrow[data-href]{cursor:pointer}
 .lrow+.lrow{border-top:1px solid var(--line)}
-.lrow[data-href]:hover{background:var(--surface-2)}
+.lrow[data-href]:hover{background-color:var(--surface-2)}
 .lhead{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;padding-block:9px;background:var(--surface-2)}
-.lrow.s-over{border-left-color:var(--over)} .lrow.s-today{border-left-color:var(--today)} .lrow.s-tmrw{border-left-color:var(--tmrw)}
+.lrow.s-over{border-left-color:var(--due-over)} .lrow.s-today{border-left-color:var(--due-today)} .lrow.s-tmrw{border-left-color:var(--due-tmrw)} .lrow.s-later{border-left-color:var(--due-later)}
+/* a 10% tint from the left edge fading out; 2+ days keeps just the border */
+.lrow.s-over{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-over) 10%,transparent),transparent)}
+.lrow.s-today{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-today) 10%,transparent),transparent)}
+.lrow.s-tmrw{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-tmrw) 10%,transparent),transparent)}
 .c-num{display:flex;align-items:center;gap:6px;min-width:0}
 .c-num .mono{font-weight:600;font-size:13px}
 /* ledger: number + complexity on line 1, tags on line 2; title on line 1, notes on line 2 */
@@ -143,7 +154,7 @@ select.cell{font-weight:500}
 
 .pill{display:inline-block;padding:2px 8px;border-radius:99px;background:var(--surface-2);border:1px solid var(--line);font-size:12px;font-weight:500;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}
 .due{font-size:12.5px;font-weight:600;white-space:nowrap}
-.due.k-over{color:var(--over)} .due.k-today{color:var(--today)} .due.k-tmrw{color:var(--tmrw)} .due.k-later{color:var(--later);font-weight:500} .due.k-none{color:var(--faint);font-weight:400}
+.due.k-over{color:var(--due-over-fg)} .due.k-today{color:var(--due-today-fg)} .due.k-tmrw{color:var(--due-tmrw-fg)} .due.k-later{color:var(--due-later-fg);font-weight:500} .due.k-none{color:var(--faint);font-weight:400}
 .chips{display:flex;gap:4px;flex-wrap:wrap}
 .chip{font-family:var(--font-mono);font-size:11.5px;font-weight:500;padding:1px 7px;border-radius:4px;background:var(--accent-soft);color:var(--mark-fg);display:inline-flex;align-items:center;gap:4px}
 .chip .x{color:inherit;opacity:.6;font-size:13px;padding:0 2px}
@@ -160,7 +171,7 @@ select.cell{font-weight:500}
   .lhead{display:none}
   .lrow{min-width:0;background:var(--surface);border:1px solid var(--line);border-left-width:3px;border-radius:var(--r);
     grid-template-columns:repeat(2,minmax(0,1fr));grid-template-areas:"num auto" "main main" "phase phase" "last next";gap:8px 10px;padding:10px 12px}
-  .lrow.s-none,.lrow.s-later{border-left-color:var(--line)}
+  .lrow.s-none{border-left-color:var(--line)}
   .lrow+.lrow{border-top:1px solid var(--line)}
   .c-num{grid-area:num}.c-main{grid-area:main}.c-phase{grid-area:phase}.c-last{grid-area:last}.c-next{grid-area:next}
   .c-auto{grid-area:auto;align-items:flex-end;text-align:right}.c-auto>.sub:only-child{display:none}
@@ -846,7 +857,7 @@ function rowState(c){return due(c).k}
 function ago(s){if(!s)return '';const d=-diff(s);return d===0?'today':d===1?'yesterday':d>0?`${d}d ago`:`in ${-d}d`}
 function renderHome(){
   cur=null;
-  const n={over:0,today:0,tmrw:0};const openC=state.cases.filter(c=>!c.closedAt);openC.forEach(c=>{const k=due(c).k;if(k in n)n[k]++});
+  const n={over:0,today:0,tmrw:0,later:0};const openC=state.cases.filter(c=>!c.closedAt);openC.forEach(c=>{const k=due(c).k;if(k in n)n[k]++});
   const hasSample=state.cases.some(c=>c.sample);
   app.innerHTML=`<div class="page">
     ${hasSample?`<div class="banner"><span>These are example cases and commands so you can try things out.</span><button class="btn sm" data-act="clear-samples">Remove examples</button></div>`:''}
@@ -855,9 +866,10 @@ function renderHome(){
       <div class="tb-r"><input id="q" type="search" placeholder="Search number, name, tag or note" value="${h(ui.q)}" aria-label="Search cases"><button class="btn primary" data-act="new-case">New case</button></div>
     </div>
     <div class="legend">
-      <span><i class="dot" style="background:var(--over)"></i><b>${n.over}</b> overdue</span>
-      <span><i class="dot" style="background:var(--today)"></i><b>${n.today}</b> due today</span>
-      <span><i class="dot" style="background:var(--tmrw)"></i><b>${n.tmrw}</b> due tomorrow</span>
+      <span><i class="dot" style="background:var(--due-over)"></i><b>${n.over}</b> overdue</span>
+      <span><i class="dot" style="background:var(--due-today)"></i><b>${n.today}</b> due today</span>
+      <span><i class="dot" style="background:var(--due-tmrw)"></i><b>${n.tmrw}</b> due tomorrow</span>
+      <span><i class="dot" style="background:var(--due-later)"></i><b>${n.later}</b> later</span>
     </div>
     <div class="ledger" id="ledger"></div>
     <section class="closed-sec" id="closed-sec"></section>
