@@ -20,8 +20,8 @@
   --accent:#2b4fd8; --accent-fg:#ffffff; --accent-soft:#e7ecfd;
   --over:#c33a2a; --over-soft:#fbe8e5; --today:#c0660d; --today-soft:#fdeedd; --tmrw:#8f7400; --tmrw-soft:#faf3d2; --later:#5b6476;
   /* due-state palette for the ledger: red overdue, yellow today, green tomorrow, light blue 2+ days */
-  --due-over:#d32f2f; --due-today:#d9a400; --due-tmrw:#2e9d4f; --due-later:#4a9ee0;
-  --due-over-fg:#c62828; --due-today-fg:#9c7400; --due-tmrw-fg:#22803f; --due-later-fg:#2a7fc4;
+  --due-over:#ba4848; --due-today:#b89321; --due-tmrw:#3f8c56; --due-later:#619bc9;
+  --due-over-fg:#ae4040; --due-today-fg:#856917; --due-tmrw-fg:#307244; --due-later-fg:#417dad;
   --code-bg:#f2f4f9; --mark:#dfe7ff; --mark-fg:#1c3aa8; --td-part:#1f7ab8; --td-cancel:#9a2b20;
   --font-ui:"Public Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
   --font-mono:"JetBrains Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
@@ -32,7 +32,7 @@
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
   --over:#d8958d; --over-soft:#2a2023; --today:#d4a777; --today-soft:#29231d; --tmrw:#c8b778; --tmrw-soft:#26251d; --later:#9aa2b3;
-  --due-over:#f06a62; --due-today:#f0c43c; --due-tmrw:#5cc87c; --due-later:#7cc0f2;
+  --due-over:#db7d77; --due-today:#d5b657; --due-tmrw:#6cb883; --due-later:#8ebde0;
   --due-over-fg:var(--due-over); --due-today-fg:var(--due-today); --due-tmrw-fg:var(--due-tmrw); --due-later-fg:var(--due-later);
   --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#a8706a; color-scheme:dark}}
 :root[data-theme="dark"]{
@@ -40,7 +40,7 @@
   --fg:#e5e8ee; --muted:#9aa2b3; --faint:#6d7587;
   --accent:#7f9cff; --accent-fg:#0b1020; --accent-soft:#1c2542;
   --over:#d8958d; --over-soft:#2a2023; --today:#d4a777; --today-soft:#29231d; --tmrw:#c8b778; --tmrw-soft:#26251d; --later:#9aa2b3;
-  --due-over:#f06a62; --due-today:#f0c43c; --due-tmrw:#5cc87c; --due-later:#7cc0f2;
+  --due-over:#db7d77; --due-today:#d5b657; --due-tmrw:#6cb883; --due-later:#8ebde0;
   --due-over-fg:var(--due-over); --due-today-fg:var(--due-today); --due-tmrw-fg:var(--due-tmrw); --due-later-fg:var(--due-later);
   --code-bg:#0b0f15; --mark:#22305c; --mark-fg:#c4d2ff; --td-part:#7cc4f5; --td-cancel:#a8706a; color-scheme:dark}
 
@@ -111,10 +111,10 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .lrow[data-href]:hover{background-color:var(--surface-2)}
 .lhead{font-size:11px;text-transform:uppercase;letter-spacing:.07em;color:var(--faint);font-weight:600;padding-block:9px;background:var(--surface-2)}
 .lrow.s-over{border-left-color:var(--due-over)} .lrow.s-today{border-left-color:var(--due-today)} .lrow.s-tmrw{border-left-color:var(--due-tmrw)} .lrow.s-later{border-left-color:var(--due-later)}
-/* a 10% tint from the left edge fading out; 2+ days keeps just the border */
-.lrow.s-over{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-over) 10%,transparent),transparent)}
-.lrow.s-today{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-today) 10%,transparent),transparent)}
-.lrow.s-tmrw{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-tmrw) 10%,transparent),transparent)}
+/* a 5% tint at the left edge, gone by 40% of the row; 2+ days keeps just the border */
+.lrow.s-over{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-over) 5%,transparent),transparent 40%)}
+.lrow.s-today{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-today) 5%,transparent),transparent 40%)}
+.lrow.s-tmrw{background-image:linear-gradient(90deg,color-mix(in srgb,var(--due-tmrw) 5%,transparent),transparent 40%)}
 .c-num{display:flex;align-items:center;gap:6px;min-width:0}
 .c-num .mono{font-weight:600;font-size:13px}
 /* ledger: number + complexity on line 1, tags on line 2; title on line 1, notes on line 2 */
