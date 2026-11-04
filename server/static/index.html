@@ -104,8 +104,8 @@ label.f{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--mu
 .banner{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap;background:var(--accent-soft);border-radius:var(--r);padding:10px 14px;font-size:13px}
 
 .ledger{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow-x:auto}
-.lrow{display:grid;grid-template-columns:124px minmax(220px,1fr) 128px 132px 132px 180px;
-  gap:12px;align-items:center;padding:10px 14px 10px 11px;border-left:3px solid transparent;min-width:1022px;color:inherit}
+.lrow{display:grid;grid-template-columns:124px minmax(220px,1fr) 128px 132px 132px 150px;
+  gap:12px;align-items:center;padding:10px 14px 10px 11px;border-left:3px solid transparent;min-width:992px;color:inherit}
 .lrow[data-href]{cursor:pointer}
 .lrow+.lrow{border-top:1px solid var(--line)}
 .lrow[data-href]:hover{background-color:var(--surface-2)}
@@ -148,6 +148,7 @@ select.cell{font-weight:500}
 .ac.k-set,.ac.k-sent{color:var(--later);font-weight:500}
 .ac.k-email{color:var(--today)} .ac.k-late,.ac.k-close{color:var(--over)}
 .ac.k-stale{color:var(--faint);font-weight:500;text-decoration:line-through}
+.sub.ac-ready{color:var(--accent);font-weight:600}
 .ch-status .ac{padding:2px 8px;border-radius:99px;border:1px solid currentColor;font-size:12px}
 .sub{font-size:12px;color:var(--faint)}
 .empty{padding:40px 16px;text-align:center;color:var(--muted)}
@@ -902,7 +903,7 @@ let fitT;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeou
 document.fonts?.ready.then(()=>fitTags());
 const cxMeter=n=>`<span class="cxm" title="Complexity ${n} of 5" aria-label="Complexity ${n} of 5">C${n}</span>`;
 function phaseOpts(cur){return `<option value="">No phase</option>`+PHASES.map(p=>`<option value="${h(p)}" ${p===cur?'selected':''}>${h(p)}</option>`).join('')}
-function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span><span class="sub">${a.done?'Closing email sent':a.sent?`Closing email ${fmt(c.autoClose)}`:`Closing tomorrow email ${fmt(a.rem)}`}</span>`}
+function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span>${a.done?'<span class="sub ac-ready">Ready to close</span>':'<span class="sub">Closing soon</span>'}`}
 function rowHTML(c){
   const d=due(c);
   /* both columns get a second line when either needs one, so the number stays level with the title */
