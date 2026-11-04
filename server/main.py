@@ -225,6 +225,11 @@ def create_app() -> FastAPI:
             return RedirectResponse("/", 303)
         return FileResponse(STATIC / "login.html", headers=NO_STORE)
 
+    @app.get("/favicon.ico", include_in_schema=False)
+    def favicon():
+        # browsers ask for /favicon.ico on their own (history, bookmarks); answer with the SVG logo
+        return FileResponse(STATIC / "icon.svg", media_type="image/svg+xml")
+
     @app.post("/api/login")
     def login(body: LoginIn, request: Request):
         now = time.time()
