@@ -14,7 +14,7 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 
 ## Case workspace
 
-- **Case panel**: number, name, comm phase (`Waiting`, `Update`, `Follow Up`, `Closing soon`, `Closing`, or a custom phase), last comm, next comm, optional auto-close date, and a 1–5 complexity rating (the dots in the panel header).
+- **Case panel**: number, name, comm phase (`Waiting`, `Update`, `Follow Up`, `Closing soon` or `Closing`), last comm, next comm, optional auto-close date, and a 1–5 complexity rating (the dots in the panel header).
 - **Notes**: free text.
 - **Log**: timestamped entries you add yourself, plus automatic entries for events such as case created, follow-up due or sent, auto-close set or cleared, closing tomorrow email and closing email sent, and closed or reopened.
 - **TODO**: a checklist for this case. Click an item's box to change its state: `[ ]` to do → `[-]` partly done (light blue) → `[d]` done (gray, crossed out) → `[x]` canceled (dark red, crossed out). Shift-click goes back one state. **Clear done & canceled** removes the finished items.

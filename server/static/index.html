@@ -683,7 +683,7 @@ async function boot(){
 }
 document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')checkRemote();else flush()});
 window.addEventListener('beforeunload',e=>{if(sync.dirty||sync.inflight){flush();e.preventDefault();e.returnValue=''}});
-function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.linkIds||=[];c.hiddenVars||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
+function norm(c){if(PHASE_MAP[c.phase])c.phase=PHASE_MAP[c.phase];if(c.phase&&!PHASES.includes(c.phase))c.phase='';c.tags||=[];c.links||=[];c.fields||={};if(c.vars){for(const k in c.vars)if(!(k in c.fields)||c.fields[k]==='')c.fields[k]=c.vars[k];delete c.vars}c.commands||=[];c.hiddenCmds||=[];c.hiddenLinks||=[];c.linkIds||=[];c.hiddenVars||=[];c.log||=[];c.todos||=[];if(![1,2,3,4,5].includes(c.complexity))c.complexity=3;return c}
 function migTpl(t){return (t||'').replace(/\{case\.(id|number)\}/g,'{caseId}').replace(/\{case\.name\}/g,'{caseName}').replace(/\{case\.([A-Za-z_][\w.\-]*)\}/g,'{$1}')}
 /* case page panels; settings.layout says which column each one goes in, top to bottom */
 const PANELS={case:'Case',notes:'Notes',vars:'Variables',cmds:'Commands',todo:'TODO',log:'Log',tags:'Tags',links:'Links'};
@@ -793,7 +793,6 @@ const getCmd=id=>state.commands.find(k=>k.id===id);
 const getCase=id=>state.cases.find(c=>c.id===id);
 
 /* ---------- datalists ---------- */
-function phaseList(){const ph=new Set(PHASES);state.cases.forEach(c=>c.phase&&ph.add(c.phase));return [...ph]}
 function allTags(){const tg=new Set();state.cases.forEach(c=>c.tags.forEach(t=>tg.add(t)));return [...tg].sort()}
 function refreshLists(){}
 
@@ -902,7 +901,7 @@ function fitTags(){
 let fitT;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeout(fitTags,120)});
 document.fonts?.ready.then(()=>fitTags());
 const cxMeter=n=>`<span class="cxm" title="Complexity ${n} of 5" aria-label="Complexity ${n} of 5">C${n}</span>`;
-function phaseOpts(cur){const ps=phaseList();if(cur&&!ps.includes(cur))ps.push(cur);return `<option value="">No phase</option>`+ps.map(p=>`<option value="${h(p)}" ${p===cur?'selected':''}>${h(p)}</option>`).join('')}
+function phaseOpts(cur){return `<option value="">No phase</option>`+PHASES.map(p=>`<option value="${h(p)}" ${p===cur?'selected':''}>${h(p)}</option>`).join('')}
 function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span><span class="sub">${a.done?'Closing email sent':a.sent?`Closing email ${fmt(c.autoClose)}`:`Closing tomorrow email ${fmt(a.rem)}`}</span>`}
 function rowHTML(c){
   const d=due(c);
@@ -950,8 +949,7 @@ const PANEL_HTML={
             <div class="cx" role="radiogroup" aria-label="Complexity" title="Complexity · 1 easy, 5 complex"><span class="cx-lbl">Complexity</span>${cxButtons(c.complexity)}</div></div>
           <div class="form">
             <label class="f">Case number<input type="text" id="f-number" class="mono" data-f="number" value="${h(c.number)}"></label>
-            <label class="f">Comm phase<select id="f-phase-sel"><option value="">No phase</option>${phaseList().map(p=>`<option value="${h(p)}" ${p===c.phase?'selected':''}>${h(p)}</option>`).join('')}<option value="__other">Other…</option></select>
-              <input type="text" id="f-phase" data-f="phase" placeholder="Type a phase" value="${h(c.phase)}" hidden></label>
+            <label class="f">Comm phase<select id="f-phase-sel">${phaseOpts(c.phase)}</select></label>
             <label class="f wide">Name<input type="text" id="f-name" data-f="name" value="${h(c.name)}"></label>
             <div class="wide dates">
               <label class="f">Last comm<input type="date" id="f-last" data-f="lastComm" value="${h(c.lastComm)}"></label>
@@ -1068,7 +1066,7 @@ function renderAcNote(){
 }
 function syncForm(){
   const ps=document.getElementById('f-phase-sel');
-  if(ps){if(![...ps.options].some(o=>o.value===cur.phase)){const o=document.createElement('option');o.value=o.textContent=cur.phase;ps.insertBefore(o,ps.lastElementChild)}ps.value=cur.phase;document.getElementById('f-phase').hidden=true}
+  if(ps)ps.value=cur.phase;
   for(const [id,k] of [['f-comm','commDate'],['f-last','lastComm']]){const i=document.getElementById(id);if(i&&i!==document.activeElement)i.value=cur[k]||''}
 }
 function renderLog(){
@@ -1478,9 +1476,7 @@ app.addEventListener('change',e=>{
   if(t.dataset.cell&&!cur){const row=t.closest('.lrow');const c=getCase(row.dataset.cid);if(!c)return;c[t.dataset.cell]=t.value;delete c.sample;if(t.dataset.cell==='lastComm'&&t.value){const before=c.autoClose;lastCommChanged(c);const fu=fuOnLastComm(c);row.querySelector('[data-cell=phase]').value=c.phase;row.querySelector('[data-cell=commDate]').value=c.commDate||'';if(before&&!c.autoClose)toast('Auto-close cleared. Pick the next comm phase');else if(fu)toast(`Follow up #${c.fuCount} counted`)}save();refreshRow(row,c);ui.dirty=true;if(t.tagName==='SELECT')resortSoon();return}
   if(t.id==='pin-sel'&&t.value){const id=t.value;if(cur.hiddenCmds.includes(id))cur.hiddenCmds=cur.hiddenCmds.filter(x=>x!==id);else cur.commands.push(id);ensureVars(cur);save();renderCmdSection();renderVars();return}
   if(t.id==='f-phase-sel'&&cur){
-    const other=document.getElementById('f-phase');
-    if(t.value==='__other'){other.hidden=false;other.value='';other.focus();return}
-    other.hidden=true;cur.phase=t.value;delete cur.sample;save();updateHead();return;
+    cur.phase=t.value;delete cur.sample;save();updateHead();return;
   }
   if(t.dataset.dlu!==undefined||t.dataset.kf==='template'){const v=migTpl(t.value);if(v!==t.value){t.value=v;t.dispatchEvent(new Event('input',{bubbles:true}))}return}
   if(t.id==='k-auto'){const k=getCmd(location.hash.slice(9)||state.commands[0]?.id);if(k){k.auto=t.checked;save();renderCmdList(k.id);toast(k.auto?'Added to every case':'No longer a default')}return}
