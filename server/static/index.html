@@ -145,7 +145,7 @@ select.cell{font-weight:500}
 .c-last .sub,.c-next .due{padding-left:7px;font-size:11.5px}
 .dcell{position:relative;display:block}
 .dtxt{display:block;padding:4px 7px;border:1px solid transparent;border-radius:5px;font-size:12.5px;font-weight:500;color:var(--fg);white-space:nowrap}
-.dtxt.empty{color:var(--faint);font-weight:400}
+.dtxt.unset{color:var(--faint);font-weight:400}
 .lrow:hover .dtxt{border-color:var(--line);background:var(--surface)}
 .dcell input.cell{position:absolute;inset:0;width:100%;height:100%;padding:4px 6px;opacity:0;cursor:pointer}
 .dcell:focus-within input.cell{opacity:1;border-color:var(--accent);background:var(--surface)}
@@ -444,8 +444,6 @@ input[type=text].td-text:focus{border-color:var(--accent);background:var(--surfa
 .fu{font-weight:600}
 .fu.k-due{color:var(--tmrw)} .fu.k-optional{color:var(--faint);font-weight:500}
 .cell.fu-due{background:var(--tmrw-soft)!important;border-color:color-mix(in srgb,var(--tmrw) 45%,transparent)!important}
-.mini{border:1px solid var(--line);background:var(--surface);border-radius:4px;font-size:10.5px;font-weight:600;padding:0 5px;line-height:16px;cursor:pointer;color:var(--muted)}
-.mini:hover{color:var(--fg);border-color:var(--line-strong)}
 .ac-note.k-nophase{background:var(--over-soft);border-color:color-mix(in srgb,var(--over) 40%,transparent);color:var(--fg)}
 select.nophase{border-color:color-mix(in srgb,var(--over) 55%,transparent);background:var(--over-soft);color:var(--over)}
 .lrow select.cell.nophase{border-color:color-mix(in srgb,var(--over) 45%,transparent);background:var(--over-soft);color:var(--over)}
@@ -927,10 +925,10 @@ function rowHTML(c){
     <div class="c-auto">${acHTML(c)}</div>
   </div>`;
 }
-function fuLbl(c){const f=fuInfo(c);if(!f)return '';return `<span class="fu k-${f.k}">${f.k==='due'?(f.n?'FU due':'1st FU'):'FU optional'}</span><button type="button" class="mini" data-act="fu-sent" data-id="${c.id}">Sent</button>`}
+function fuLbl(c){const f=fuInfo(c);if(!f)return '';return `<span class="fu k-${f.k}">${f.k==='due'?(f.n?'FU due':'1st FU'):'FU optional'}</span>`}
 /* ledger dates read as text ("Thu, Oct 29"); the date input sits invisibly on top and shows itself while focused */
-function dateCell(k,v,label,cls=''){return `<span class="dcell${cls}"><span class="dtxt${v?'':' empty'}" aria-hidden="true">${v?fmtW(v):'Set date'}</span><input type="date" class="cell" data-cell="${k}" value="${h(v)}" aria-label="${label}"></span>`}
-function dateTxt(el,v){const t=el.querySelector('.dtxt');t.textContent=v?fmtW(v):'Set date';t.classList.toggle('empty',!v)}
+function dateCell(k,v,label,cls=''){return `<span class="dcell${cls}"><span class="dtxt${v?'':' unset'}" aria-hidden="true">${v?fmtW(v):'Set date'}</span><input type="date" class="cell" data-cell="${k}" value="${h(v)}" aria-label="${label}"></span>`}
+function dateTxt(el,v){const t=el.querySelector('.dtxt');t.textContent=v?fmtW(v):'Set date';t.classList.toggle('unset',!v)}
 function lastCellHTML(c){const f=fuInfo(c);return `${dateCell('lastComm',c.lastComm,'Last comm date',f?' fu-'+f.k:'')}<span class="sub lbl-last"><span>${ago(c.lastComm)}</span>${fuLbl(c)}</span>`}
 function refreshRow(el,c){
   el.className=`lrow s-${rowState(c)}`;
@@ -1550,7 +1548,6 @@ document.addEventListener('click',e=>{
     case 'cx':{const n=+b.dataset.n;cur.complexity=n;save();document.querySelectorAll('.cx [data-act=cx]').forEach(x=>{x.setAttribute('aria-checked',x===b);x.classList.toggle('on',+x.dataset.n<=n)});break}
     case 'fu-sent':{
       if(cur){markFU(cur);save();syncForm();updateHead();renderLog();toast(`Follow up #${cur.fuCount} sent`)}
-      else{const c=getCase(b.dataset.id);if(!c)break;markFU(c);save();const row=b.closest('.lrow');row.querySelector('[data-cell=lastComm]').value=c.lastComm;row.querySelector('[data-cell=phase]').value=c.phase;row.querySelector('[data-cell=commDate]').value='';refreshRow(row,c);ui.dirty=true;resortSoon();toast(`Follow up #${c.fuCount} sent`)}
       break}
     case 'ac-sent':{cur.lastComm=iso(new Date());cur.ctSent=true;cur.phase='Closing';cur.commDate=cur.autoClose;autoLog(cur,'Closing tomorrow email sent');save();syncForm();updateHead();renderLog();toast('Closing '+fmtW(cur.autoClose));break}
     case 'ac-closed':{cur.lastComm=iso(new Date());cur.cSent=true;autoLog(cur,'Closing email sent');save();syncForm();updateHead();renderLog();toast('Closing email sent. Close the case when ready');break}
