@@ -791,14 +791,15 @@ const CLOSING_PHASES=['Closing soon','Closing'];
 const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 const fmtW=s=>s?`${WD[pd(s).getDay()]}, ${fmt(s)}`:'';
 function prevBiz(s){const d=pd(s);do{d.setDate(d.getDate()-1)}while(d.getDay()===0||d.getDay()===6);return iso(d)}
-/* auto-close: the closing email is due 1 business day before the auto-close date */
+/* auto-close: two emails. The closing tomorrow email is due 1 business day before the auto-close date (phase Closing soon);
+   the closing email is due on the auto-close date (phase Closing). sent = closing tomorrow email sent, done = closing email sent. */
 function autoInfo(c){
   if(!c.autoClose)return null;
   const rem=prevBiz(c.autoClose),set=c.autoCloseSet||'',lc=c.lastComm||'';
   const stale=!CLOSING_PHASES.includes(c.phase);
-  return{k:stale?'stale':'active',rem,sent:!!(c.ctSent||(lc&&set&&lc>set&&lc>=rem))};
+  return{k:stale?'stale':'active',rem,done:!!c.cSent,sent:!!(c.cSent||c.ctSent||(lc&&set&&lc>set&&lc>=rem))};
 }
-/* auto-close drives Phase + Next comm: closing email 1 business day before, closing email on the date */
+/* auto-close drives Phase + Next comm: closing tomorrow email 1 business day before, closing email on the date */
 function applyAuto(c){
   const a=autoInfo(c);if(!a)return;
   if(a.sent){c.phase='Closing';c.commDate=c.autoClose}else{c.phase='Closing soon';c.commDate=a.rem}
@@ -832,12 +833,13 @@ function fuOnLastComm(c){if(c.phase==='Follow Up'){markFU(c,true);return true}re
 function lastCommChanged(c){
   if(!c.autoClose)return false;
   const a=autoInfo(c);
-  if(a.k==='active'&&c.lastComm&&c.lastComm>=a.rem){ /* this is the closing-soon or closing email */
-    if(!c.ctSent){c.ctSent=true;c.phase='Closing';c.commDate=c.autoClose;autoLog(c,'Closing email sent')}
+  if(a.k==='active'&&c.lastComm&&c.lastComm>=a.rem){ /* this is the closing tomorrow email, or the closing email */
+    if(!c.ctSent){c.ctSent=true;c.phase='Closing';c.commDate=c.autoClose;autoLog(c,'Closing tomorrow email sent')}
+    else if(!c.cSent&&c.lastComm>=c.autoClose){c.cSent=true;autoLog(c,'Closing email sent')}
     return false;
   }
   autoLog(c,`Auto-close ${fmtW(c.autoClose)} cleared by new last comm`);
-  c.autoClose='';c.autoCloseSet='';c.ctSent=false;if(CLOSING_PHASES.includes(c.phase))c.phase='';return true;
+  c.autoClose='';c.autoCloseSet='';c.ctSent=false;c.cSent=false;if(CLOSING_PHASES.includes(c.phase))c.phase='';return true;
 }
 function rank(c){return c.commDate?diff(c.commDate):1e9}
 function rowState(c){return due(c).k}
@@ -889,7 +891,7 @@ let fitT;window.addEventListener('resize',()=>{clearTimeout(fitT);fitT=setTimeou
 document.fonts?.ready.then(()=>fitTags());
 const cxMeter=n=>`<span class="cxm" title="Complexity ${n} of 5" aria-label="Complexity ${n} of 5">C${n}</span>`;
 function phaseOpts(cur){const ps=phaseList();if(cur&&!ps.includes(cur))ps.push(cur);return `<option value="">No phase</option>`+ps.map(p=>`<option value="${h(p)}" ${p===cur?'selected':''}>${h(p)}</option>`).join('')}
-function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span><span class="sub">${a.sent?'Closing email sent':`Closing email ${fmt(a.rem)}`}</span>`}
+function acHTML(c){const a=autoInfo(c);if(!a)return `<span class="sub">—</span>`;return a.k==='stale'?`<span class="ac k-stale">${fmtW(c.autoClose)}</span><span class="sub">Ignored</span>`:`<span class="ac k-set">${fmtW(c.autoClose)}</span><span class="sub">${a.done?'Closing email sent':a.sent?`Closing email ${fmt(c.autoClose)}`:`Closing tomorrow email ${fmt(a.rem)}`}</span>`}
 function rowHTML(c){
   const d=due(c);
   /* both columns get a second line when either needs one, so the number stays level with the title */
@@ -1040,11 +1042,14 @@ function renderAcNote(){
     msg=`Ignored while the phase is ${h(cur.phase||'empty')}.`;
     btn=`<button class="btn sm" data-act="ac-keep">Use it again</button>`;
   }else if(!a.sent){
-    msg=`Closing email <b>${fmtW(a.rem)}</b> · Closing <b>${fmtW(cur.autoClose)}</b>`;
-    if(today>=a.rem)btn=`<button class="btn sm primary" data-act="ac-sent">Closing email sent</button>`;
+    msg=`Closing tomorrow email <b>${fmtW(a.rem)}</b> · Closing <b>${fmtW(cur.autoClose)}</b>`;
+    if(today>=a.rem)btn=`<button class="btn sm primary" data-act="ac-sent">Closing tomorrow email sent</button>`;
+  }else if(!a.done){
+    msg=`Closing tomorrow email sent · Closing <b>${fmtW(cur.autoClose)}</b>`;
+    if(today>=cur.autoClose)btn=`<button class="btn sm primary" data-act="ac-closed">Closing email sent</button>`;
   }else{
-    msg=`Closing email sent · Closing <b>${fmtW(cur.autoClose)}</b>`;
-    if(today>=cur.autoClose)btn=`<button class="btn sm primary" data-act="close-case">Close case</button>`;
+    msg=`Closing email sent · Ready to close`;
+    btn=`<button class="btn sm primary" data-act="close-case">Close case</button>`;
   }
   el.className=`wide ac-note k-${a.k}`;
   el.innerHTML=`<span>${msg}</span>${btn}`;
@@ -1446,7 +1451,7 @@ app.addEventListener('input',e=>{
     if(t.dataset.kf){const sel=location.hash.slice(9)||state.commands[0]?.id;const k=getCmd(sel);if(!k)return;k[t.dataset.kf]=t.value;save();updatePreview(k);renderCmdList(k.id)}
     return;
   }
-  if(t.dataset.f){cur[t.dataset.f]=t.value;if(t.dataset.f==='autoClose'){cur.autoCloseSet=t.value?iso(new Date()):'';cur.ctSent=false;if(!t.value)cur.autoClose='';}delete cur.sample;save();updateHead();refreshCmds();return}
+  if(t.dataset.f){cur[t.dataset.f]=t.value;if(t.dataset.f==='autoClose'){cur.autoCloseSet=t.value?iso(new Date()):'';cur.ctSent=false;cur.cSent=false;if(!t.value)cur.autoClose='';}delete cur.sample;save();updateHead();refreshCmds();return}
   if(t.dataset.fv!==undefined){cur.fields[t.dataset.fv]=t.value;save();refreshCmds();updateVarTags();return}
 });
 app.addEventListener('change',e=>{
@@ -1526,7 +1531,8 @@ document.addEventListener('click',e=>{
       if(cur){markFU(cur);save();syncForm();updateHead();renderLog();toast(`Follow up #${cur.fuCount} sent`)}
       else{const c=getCase(b.dataset.id);if(!c)break;markFU(c);save();const row=b.closest('.lrow');row.querySelector('[data-cell=lastComm]').value=c.lastComm;row.querySelector('[data-cell=phase]').value=c.phase;row.querySelector('[data-cell=commDate]').value='';refreshRow(row,c);ui.dirty=true;resortSoon();toast(`Follow up #${c.fuCount} sent`)}
       break}
-    case 'ac-sent':{cur.lastComm=iso(new Date());cur.ctSent=true;cur.phase='Closing';cur.commDate=cur.autoClose;autoLog(cur,'Closing email sent');save();syncForm();updateHead();renderLog();toast('Closing '+fmtW(cur.autoClose));break}
+    case 'ac-sent':{cur.lastComm=iso(new Date());cur.ctSent=true;cur.phase='Closing';cur.commDate=cur.autoClose;autoLog(cur,'Closing tomorrow email sent');save();syncForm();updateHead();renderLog();toast('Closing '+fmtW(cur.autoClose));break}
+    case 'ac-closed':{cur.lastComm=iso(new Date());cur.cSent=true;autoLog(cur,'Closing email sent');save();syncForm();updateHead();renderLog();toast('Closing email sent. Close the case when ready');break}
     case 'ac-keep':cur.autoCloseSet=cur.lastComm||iso(new Date());applyAuto(cur);save();syncForm();updateHead();toast('Auto-close back on');break;
     case 'close-case':cur.closedAt=iso(new Date());autoLog(cur,'Case closed');archiveUpsert(cur);save();updateHead();renderLog();toast('Case closed');break;
     case 'reopen':delete cur.closedAt;autoLog(cur,'Case reopened');archiveReopen(cur);save();updateHead();renderLog();toast('Case reopened');break;

@@ -16,7 +16,7 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 
 - **Case panel**: number, name, comm phase (`Waiting`, `Update`, `Follow Up`, `Closing soon`, `Closing`, or a custom phase), last comm, next comm, optional auto-close date, and a 1–5 complexity rating (the dots in the panel header).
 - **Notes**: free text.
-- **Log**: timestamped entries you add yourself, plus automatic entries for events such as case created, follow-up due or sent, auto-close set or cleared, closing email sent, and closed or reopened.
+- **Log**: timestamped entries you add yourself, plus automatic entries for events such as case created, follow-up due or sent, auto-close set or cleared, closing tomorrow email and closing email sent, and closed or reopened.
 - **TODO**: a checklist for this case. Click an item's box to change its state: `[ ]` to do → `[-]` partly done (light blue) → `[d]` done (gray, crossed out) → `[x]` canceled (dark red, crossed out). Shift-click goes back one state. **Clear done & canceled** removes the finished items.
 - **Tags**, with suggestions taken from tags already used on other cases.
 - **Links**: the default links, links picked from the library with **Add a link from the library…**, and links for this case only. Removing a picked link takes it off the case; removing a default link hides it on this case (**Show hidden default links** brings it back). URLs can contain placeholders. A link that is missing a value shows which variable it needs.
@@ -27,7 +27,11 @@ Comm Desk is a single-page tool for tracking support cases and when each one nee
 ## Communication rules (automated)
 
 - **48-hour follow-up**: when a `Waiting` case reaches 2 business days since its last comm, it moves to `Follow Up` automatically. The first follow-up is required. Later ones are optional. **Follow up sent** counts it, sets the last comm to today and returns the case to `Waiting`.
-- **Auto-close**: setting an auto-close date switches the phase to `Closing soon`, with next comm on the business day before (the closing email). Once the closing email is sent, the phase becomes `Closing` and next comm moves to the auto-close date. A new last comm dated before that window clears the auto-close. The date is ignored when the phase is no longer a closing phase.
+- **Auto-close** sends two emails:
+  1. Setting an auto-close date switches the phase to `Closing soon`, with next comm on the business day before: the **closing tomorrow email**. From that day, **Closing tomorrow email sent** sets the last comm to today, the phase to `Closing`, and next comm to the auto-close date.
+  2. On the auto-close date, **Closing email sent** records the closing email (last comm today). Only then does **Close case** appear in the auto-close note.
+
+  Setting the last comm by hand counts as these emails too: on or after the closing tomorrow email's date it counts as that email, and on or after the auto-close date (once the first one is sent) as the closing email. A new last comm dated before that window clears the auto-close. The date is ignored when the phase is no longer a closing phase.
 - Weekends are skipped in all business-day calculations.
 
 ## Commands library (`#commands`)
